@@ -1,0 +1,58 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Persona {
+  id             Int      @id @default(autoincrement())
+  cuil           String   @unique
+  nombre         String
+  apellido       String
+  fechaNacimiento DateTime
+  nacionalidad   String?
+  sexo           String?  @db.Char(1)
+  estadoCivil    String?
+  fechaCreacion  DateTime @default(now())
+  
+  domicilios Domicilio[]
+  telefonos  Telefono[]
+  emails     Email[]
+}
+
+model Domicilio {
+  id               Int      @id @default(autoincrement())
+  personaId        Int      @unique
+  calle           String?
+  numero          String?
+  ciudad          String?
+  provincia       String?
+  pais            String?
+  codigoPostal    String?
+  fechaActualizacion DateTime @default(now())
+  
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+}
+
+model Telefono {
+  id                Int      @id @default(autoincrement())
+  personaId         Int
+  telefono         String
+  tipo             String?
+  fechaActualizacion DateTime @default(now())
+  
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+}
+
+model Email {
+  id                Int      @id @default(autoincrement())
+  personaId         Int
+  email            String
+  tipo             String?
+  fechaActualizacion DateTime @default(now())
+  
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+}
