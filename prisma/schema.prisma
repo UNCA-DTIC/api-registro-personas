@@ -16,8 +16,7 @@ model Persona {
   nacionalidad   String?
   sexo           String?  @db.Char(1)
   estadoCivil    String?
-  fechaCreacion  DateTime @default(now())
-  
+  fechaCreacion  DateTime @default(now())  
   domicilios Domicilio[]
   telefonos  Telefono[]
   emails     Email[]
