@@ -99,8 +99,7 @@ const resolvers = {
           data: {
             cuit,
             nombre: nombre.trim().toUpperCase(),
-            apellido: apellido.trim().toUpperCase(),
-            // fechaNacimiento: "1990-05-15", 
+            apellido: apellido.trim().toUpperCase(),    
             fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : undefined,
             nacionalidad: nacionalidad?.trim().toUpperCase() || null,
             sexo: sexo?.trim().toUpperCase() || null,
