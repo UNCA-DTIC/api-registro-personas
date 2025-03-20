@@ -13,7 +13,7 @@ describe("Test de Persona, Domicilio, Teléfono y Email en GraphQL", () => {
         const mutation = `
         mutation {
             crearPersona(
-                cuil: "20123456780",
+                cuit: "20123456780",
                 nombre: "Juan",
                 apellido: "Pérez",
                 fechaNacimiento: "1990-05-15",
@@ -28,10 +28,10 @@ describe("Test de Persona, Domicilio, Teléfono y Email en GraphQL", () => {
         }`;
 
         const response = await request(API_URL).post("").send({ query: mutation });
-
         expect(response.status).toBe(200);
         expect(response.body.data.crearPersona).toHaveProperty("id");
         personaId = response.body.data.crearPersona.id;
+
     });
 
     // Crear un domicilio

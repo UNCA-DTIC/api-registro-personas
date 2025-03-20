@@ -1,27 +1,52 @@
 const { PrismaClient } = require("@prisma/client");
+const { ApolloError, UserInputError } = require('apollo-server');
 
 const prisma = new PrismaClient();
 
+const max = 5;
 const resolvers = {
   Query: {
     // Obtener todas las personas con sus relaciones
-    personas: async () => {
-      return await prisma.persona.findMany({
-        include: { domicilios: true, telefonos: true, emails: true },
-      });
+    // Obtener todas las personas con paginación
+    personas: async (_, { skip = 0, take = max }) => {
+      try {
+        const personas = await prisma.persona.findMany({
+          skip,
+          take,
+          include: { domicilios: true, telefonos: true, emails: true },
+        });
+        return personas;
+      } catch (error) {
+        throw new ApolloError('Error al obtener las personas', 'INTERNAL_SERVER_ERROR');
+      }
+    },
+
+    // Obtener el número total de personas (útil para paginación)
+    totalPersonas: async () => {
+      return await prisma.persona.count();
     },
 
     // Obtener una persona por ID
     persona: async (_, { id }) => {
-      return await prisma.persona.findUnique({
+      const persona = await prisma.persona.findUnique({
         where: { id: Number(id) },
         include: { domicilios: true, telefonos: true, emails: true },
       });
+      if (!persona) {
+        throw new ApolloError('Persona no encontrada', 'NOT_FOUND');
+      }
+      return persona;
     },
-    // Obtener una persona por CUIL
-    personaPorCuil: async (_, { cuil }) => {
+
+    // Obtener una persona por cuit
+    personaPorcuit: async (_, { cuit }) => {
+      if (!cuit) {
+        throw new UserInputError('Faltan datos obligatorios', {
+          invalidArgs: ['cuit'],
+        });
+      }
       return await prisma.persona.findFirst({
-        where: { cuil },
+        where: { cuit },
         include: { domicilios: true, telefonos: true, emails: true },
       });
     },
@@ -68,19 +93,26 @@ const resolvers = {
 
   Mutation: {
     // Crear una nueva persona
-    crearPersona: async (_, { cuil, nombre, apellido, fechaNacimiento, nacionalidad, sexo, estadoCivil }) => {
-      return await prisma.persona.create({
-        data: {
-          cuil,
-          nombre: nombre.toUpperCase(),
-          apellido: apellido.toUpperCase(),
-          fechaNacimiento: new Date(fechaNacimiento),
-          nacionalidad: nacionalidad?.toUpperCase(),
-          sexo: sexo?.toUpperCase(),
-          estadoCivil: estadoCivil?.toUpperCase(),
-        },
-      });
+    crearPersona: async (_, { cuit, nombre, apellido, fechaNacimiento, nacionalidad, sexo, estadoCivil }) => {
+      try {
+        return await prisma.persona.create({
+          data: {
+            cuit,
+            nombre: nombre.trim().toUpperCase(),
+            apellido: apellido.trim().toUpperCase(),
+            // fechaNacimiento: "1990-05-15", 
+            fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : undefined,
+            nacionalidad: nacionalidad?.trim().toUpperCase() || null,
+            sexo: sexo?.trim().toUpperCase() || null,
+            estadoCivil: estadoCivil?.trim().toUpperCase() || null,
+          },
+        });
+      } catch (error) {
+        console.error("Error al crear la persona:", error.message);
+        return null;
+      }
     },
+
 
     // Actualizar persona
     actualizarPersona: async (_, { id, nombre, apellido, fechaNacimiento, nacionalidad, sexo, estadoCivil }) => {

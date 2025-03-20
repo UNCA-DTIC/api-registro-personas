@@ -5,7 +5,7 @@ const typeDefs = gql`
 
   type Persona {
     id: ID!
-    cuil: String!
+    cuit: String!
     nombre: String!
     apellido: String!
     fechaNacimiento: DateTime!
@@ -48,10 +48,11 @@ const typeDefs = gql`
 
   type Query {
     # Consultas de Personas
-    personas: [Persona]
+    personas(skip: Int, take: Int): [Persona]
+    totalPersonas: Int
     persona(id: ID!): Persona
-    # Consultas de Personas por CUIL
-    personaPorCuil(cuil: String!): Persona
+    # Consultas de Personas por cuit
+    personaPorcuit(cuit: String!): Persona
 
     # Consultas de Domicilios
     domicilios: [Domicilio]
@@ -68,7 +69,7 @@ const typeDefs = gql`
 
   type Mutation {
     # Mutaciones de Persona
-    crearPersona(cuil: String!, nombre: String!, apellido: String!, fechaNacimiento: DateTime!, nacionalidad: String, sexo: String, estadoCivil: String ): Persona
+    crearPersona(cuit: String!, nombre: String!, apellido: String!, fechaNacimiento: DateTime!, nacionalidad: String, sexo: String, estadoCivil: String ): Persona
     actualizarPersona(id: ID!, nombre: String, apellido: String, fechaNacimiento: DateTime, nacionalidad: String, sexo: String, estadoCivil: String): Persona
     eliminarPersona(id: ID!): Persona
 

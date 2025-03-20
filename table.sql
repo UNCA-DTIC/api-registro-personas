@@ -1,6 +1,6 @@
 CREATE TABLE personas (
     id SERIAL PRIMARY KEY,
-    cuil VARCHAR(20) UNIQUE NOT NULL,  -- CUIL como identificador único
+    cuit VARCHAR(20) UNIQUE NOT NULL,  -- cuit como identificador único
     nombre VARCHAR(255) NOT NULL,
     apellido VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,

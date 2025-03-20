@@ -9,10 +9,11 @@ generator client {
 
 model Persona {
   id             Int      @id @default(autoincrement())
-  cuil           String   @unique
-  nombre         String
-  apellido       String
-  fechaNacimiento DateTime
+  cuit           String   @unique
+  nombre         String?
+  apellido       String?
+  razonSocial    String?
+  fechaNacimiento DateTime?
   nacionalidad   String?
   sexo           String?  @db.Char(1)
   estadoCivil    String?
@@ -31,8 +32,7 @@ model Domicilio {
   provincia       String?
   pais            String?
   codigoPostal    String?
-  fechaActualizacion DateTime @default(now())
-  
+  fechaActualizacion DateTime @default(now())  
   persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
 }
 

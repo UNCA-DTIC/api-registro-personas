@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "Persona" (
     "id" SERIAL NOT NULL,
-    "cuil" TEXT NOT NULL,
+    "cuit" TEXT NOT NULL,
     "nombre" TEXT NOT NULL,
     "apellido" TEXT NOT NULL,
     "fechaNacimiento" TIMESTAMP(3) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE "Email" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Persona_cuil_key" ON "Persona"("cuil");
+CREATE UNIQUE INDEX "Persona_cuit_key" ON "Persona"("cuit");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Domicilio_personaId_key" ON "Domicilio"("personaId");
