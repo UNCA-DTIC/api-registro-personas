@@ -8,7 +8,7 @@ Prisma CLI tiene varios comandos útiles para gestionar bases de datos y el ORM.
 prisma init
 Inicializa Prisma en tu proyecto, creando el archivo prisma/schema.prisma.
 
-prisma generate
+npx prisma generate
 Genera el cliente de Prisma a partir del archivo schema.prisma.
 
 prisma migrate dev --name <nombre>
@@ -20,7 +20,7 @@ Aplica todas las migraciones en producción.
 prisma migrate reset
 Borra la base de datos y reaplica las migraciones desde cero.
 
-prisma db push
+npx prisma db push
 Aplica cambios en schema.prisma directamente a la base de datos sin migraciones.
 
 prisma db seed

@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import Edit from "./Edit.svelte";
@@ -146,8 +148,9 @@
     }
   }
 
-  async function updatePersona(rowSelected) {
-    console.log("🚀 ~ updatePersona ~ rowSelected:", rowSelected)
+  async function updatePersona(rowSelected) { 
+   const fec = rowSelected.fechaNacimiento
+    console.log("🚀 ~ updatePersona ~ fec:", fec)
     try {
       const mutation = `
         mutation {
@@ -161,10 +164,12 @@
             estadoCivil: "${rowSelected.estadoCivil}"
           ) {
             id
+            nombre
+            apellido
+
           }
         }
       `;
-
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -172,6 +177,7 @@
       });
 
       const result = await response.json();
+      console.log("🚀 ~ updatePersona ~ result:", result)
       if (result.data) {
         fetchPersonas();
       } else {
@@ -263,14 +269,12 @@
     <div class="flex justify-end gap-2 pt-4">
       <button
         class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-        onclick={selectPanel(1)}
-      >
+        onclick={selectPanel(1)}>
         Cancelar
       </button>
       <button
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        onclick={updatePersona(rowSelected)}
-      >
+        onclick={async () => await updatePersona(rowSelected)}>
         Guardar
       </button>
     </div>

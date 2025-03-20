@@ -34,6 +34,32 @@ describe("Test de Persona, Domicilio, Teléfono y Email en GraphQL", () => {
 
     });
 
+    //actualizar persona
+    it("Debe actualizar una persona con todos los datos", async () => {
+        const mutation = `
+        mutation {
+            actualizarPersona(
+                id: ${personaId},              
+                nombre: "Juan",
+                apellido: "Pérez",
+                fechaNacimiento: "1990-05-15",
+                nacionalidad: "Argentina"
+                sexo: "M"
+                estadoCivil: "Soltero"
+            ) {
+                id
+                nombre
+                apellido
+            }
+        }`;
+
+        const response = await request(API_URL).post("").send({ query: mutation });
+        expect(response.status).toBe(200);
+        expect(response.body.data.actualizarPersona).toHaveProperty("id");
+        personaId = response.body.data.actualizarPersona.id;
+
+    });
+
     // Crear un domicilio
     it("Debe agregar un domicilio a la persona", async () => {
         const mutation = `

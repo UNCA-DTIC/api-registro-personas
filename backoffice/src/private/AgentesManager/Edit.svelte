@@ -1,24 +1,40 @@
 <script>
+// @ts-nocheck
+
   import Panel from "$lib/layout/Panel.svelte";
   import { onMount } from "svelte";
+  
+  let fechaNac = "";
+  let { rowSelected } = $props();
 
   onMount(() => {
-
+    fechaNac = formatDate(rowSelected.fechaNacimiento);
   });
-
-  let { rowSelected } = $props();
 
   function formatDate(date) {
     if (!date) return ""; // Si no hay fecha, retorna vacío
-    
-    const [day, month, year] = date.split('/'); // Divide la fecha en día, mes y año
+
+    const [day, month, year] = date.split("/"); // Divide la fecha en día, mes y año
     if (!day || !month || !year) return ""; // Si la fecha no tiene los 3 elementos, retorna vacío
-    
+
+
     // Convierte al formato YYYY-MM-DD
-    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-    
+    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+
+    console.log("🚀 ~ formatDate ~ formattedDate:", formattedDate)
     return formattedDate;
   }
+
+  function parseDateToObject(date) {
+    if (!date) return null; // Si no hay fecha, retorna null
+
+    const [year, month, day] = date.split("-"); // Divide la fecha en año, mes y día
+    if (!year || !month || !day) return null; // Si la fecha no tiene los 3 elementos, retorna null
+
+    return new Date(year, month - 1, day); // `month - 1` porque los meses en JS van de 0 a 11
+}
+
+
 </script>
 
 <Panel>
@@ -32,9 +48,8 @@
         <input
           type="text"
           id="cuit"
-          nombre="cuit"
           class="px-4 py-2 border border-gray-300 rounded-lg"
-          value={rowSelected?.cuit}
+          bind:value={rowSelected.cuit}
         />
         <label for="nombre" class="text-sm font-semibold text-gray-600">
           Nombre
@@ -42,9 +57,8 @@
         <input
           type="text"
           id="nombre"
-          nombre="nombre"
           class="px-4 py-2 border border-gray-300 rounded-lg"
-          value={rowSelected?.nombre}
+          bind:value={rowSelected.nombre}
         />
         <label for="apellido" class="text-sm font-semibold text-gray-600">
           Apellido
@@ -52,25 +66,29 @@
         <input
           type="text"
           id="apellido"
-          nombre="apellido"
           class="px-4 py-2 border border-gray-300 rounded-lg"
-          value={rowSelected?.apellido}
+          bind:value={rowSelected.apellido}
         />
         <div class="flex flex-col">
-          <label for="fechaNacimiento" class="text-sm font-semibold text-gray-600">
+          <label
+            for="fechaNacimiento"
+            class="text-sm font-semibold text-gray-600"
+          >
             Fecha de Nacimiento
           </label>
+         
           <input
             type="date"
             id="fechaNacimiento"
             name="fechaNacimiento"
             class="px-4 py-2 border border-gray-300 rounded-lg"
-            value={formatDate(rowSelected?.fechaNacimiento)}      
-            on:input="{(e) => rowSelected.fechaNacimiento = e.target.value}"   
+            value={formatDate(rowSelected.fechaNacimiento)}
+            onchange={(e) => {
+              rowSelected.fechaNacimiento = parseDateToObject(e.target.value);        
+            }}
           />
-        </div>       
+        </div>
 
-        
         <div class="flex flex-col">
           <label for="nacionalidad" class="text-sm font-semibold text-gray-600">
             Nacionalidad
@@ -80,7 +98,7 @@
             id="nacionalidad"
             name="nacionalidad"
             class="px-4 py-2 border border-gray-300 rounded-lg"
-            value={rowSelected?.nacionalidad}
+            bind:value={rowSelected.nacionalidad}
           />
         </div>
         <div class="flex flex-col">
