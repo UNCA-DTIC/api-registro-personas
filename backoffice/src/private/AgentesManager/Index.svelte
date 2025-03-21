@@ -1,6 +1,9 @@
 <script>
   // @ts-nocheck
 
+  import { getNotificationsContext } from 'svelte-notifications';
+const { addNotification } = getNotificationsContext();
+
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import Edit from "./Edit.svelte";
@@ -8,6 +11,7 @@
   import Modal from "$lib/Componets/Modal.svelte";
   import Table from "../../lib/Componets/Table/Table.svelte";
   import LayoutPage from "../layout/LayoutPage.svelte";
+  import Create from "./Create.svelte";
 
   const API_URL = import.meta.env.VITE_API_HOST_AGENTES;
   const LIMITE_POR_PAGINA = 5;
@@ -34,11 +38,11 @@
     cuit: "",
     nombre: "",
     apellido: "",
-    razonSocial: "",
+    razonSocial: "N",
     fechaInicio: "",
     nacionalidad: "",
-    sexo: "O",
-    estadoCivil: "SOLTERO",
+    sexo: "N",
+    estadoCivil: "N",
     tipoPersona: "FISICA",
     representanteCuit: "0",
   });
@@ -74,8 +78,7 @@
         body: JSON.stringify({ query }),
       });
 
-      const result = await response.json();
-      console.log("🚀 ~ fetchPersonas ~ result:", result)
+      const result = await response.json();   
 
       if (result.data) {
         // Filtramos valores nulos
@@ -89,10 +92,34 @@
                 .split("T")[0]
                 .split("-")
                 .reverse()
-                .join("/");
+                .join("/");             
             } catch (e) {
               console.error("Error al formatear fecha:", e);
             }
+          }
+          if(persona.razonSocial === "N"){
+            persona.razonSocial = "";
+          }
+          if(persona.representanteCuit === "0"){
+            persona.representanteCuit = "";
+          }
+          if(persona.nombre === "N"){
+            persona.nombre = "";
+          }
+          if(persona.apellido === "N"){
+            persona.apellido = "";
+          }
+                // nacionalidad N
+          if(persona.nacionalidad === "N"){
+            persona.nacionalidad = "";
+          }
+          // sexo N
+          if(persona.sexo === "N"){
+            persona.sexo = "";
+          }
+          // estadoCivil N
+          if(persona.estadoCivil === "N"){
+            persona.estadoCivil = "";
           }
         });
 
@@ -114,6 +141,23 @@
       let $persona;
       persona.subscribe((value) => ($persona = value))();
 
+      if ($persona.tipoPersona === "JURIDICA") {
+        $persona.apellido = "N";
+        $persona.nombre = "N";
+        $persona.sexo = "N";
+        $persona.estadoCivil = "N";
+        $persona.nacionalidad = "";
+        if ($persona.representanteCuit === "") {
+          alert("Debe ingresar el cuit del representante");
+          return;
+        }
+      }
+      if ($persona.tipoPersona === "FISICA") {
+        $persona.razonSocial = "N";
+        $persona.representanteCuit = "0";
+      }
+
+      
       const mutation = `
         mutation {
           crearPersona(
@@ -148,11 +192,11 @@
           cuit: "",
           nombre: "",
           apellido: "",
-          razonSocial: "",
+          razonSocial: "N",
           fechaInicio: "",
           nacionalidad: "",
-          sexo: "O",
-          estadoCivil: "SOLTERO",
+          sexo: "N",
+          estadoCivil: "N",
           tipoPersona: "FISICA",
           representanteCuit: "0",
         });
@@ -162,6 +206,7 @@
     } catch (error) {
       console.error("Error en crearPersona:", error);
     }
+    hiddenEnable = false;
   }
 
   async function updatePersona(rowSelected) {
@@ -302,15 +347,22 @@
 
   let rowSelected = {};
   $: rowSelected;
+
+
+
+
 </script>
 
+
+
 <LayoutPage>
+
   {#if showPanel === 1}
-    <Panel>
-      <h1 class="text-2xl font-bold text-gray-800 mb-4">Gestión de Agentes</h1>
+    <Panel>      
+      <h1 class="text-2xl font-bold text-gray-800 mb-4">Gestión de Personas</h1>
       <Table
         searchTitle="Buscar por Cuit..."
-        title="Agentes"
+        title="Personas"
         itemsPerPage={5}
         showSearch="true"
         showAddButton="true"
@@ -342,21 +394,22 @@
     </Panel>
   {/if}
   {#if showPanel === 2}
-    <Edit {rowSelected} />
-
-    <div class="flex justify-end gap-2 pt-4">
-      <button
-        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-        onclick={selectPanel(1)}
-      >
-        Cancelar
-      </button>
-      <button
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        onclick={async () => await updatePersona(rowSelected)}
-      >
-        Guardar
-      </button>
+    <div class=" flex flex-col justify-center items-center">
+      <Edit {rowSelected} />
+      <div class="flex justify-end gap-2 pt-4 w-[960px] lg:ml-52 p-4">
+        <button
+          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          onclick={selectPanel(1)}
+        >
+          Cancelar
+        </button>
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          onclick={async () => await updatePersona(rowSelected)}
+        >
+          Guardar
+        </button>
+      </div>
     </div>
   {/if}
 </LayoutPage>
@@ -369,101 +422,7 @@
   }}
 >
   <div id="modalContent" class="mb-4">
-    <form id="agentForm" class="space-y-4">
-      <div class="flex flex-col">
-        <label for="cuit" class="text-sm font-semibold text-gray-600">
-          Cuit
-        </label>
-        <input
-          type="text"
-          id="cuit"
-          name="cuit"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={$persona.cuit}
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="apellido" class="text-sm font-semibold text-gray-600">
-          Apellido
-        </label>
-        <input
-          type="text"
-          id="apellido"
-          name="apellido"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={$persona.apellido}
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="nombre" class="text-sm font-semibold text-gray-600">
-          Nombre
-        </label>
-        <input
-          type="text"
-          id="nombre"
-          name="nombre"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={$persona.nombre}
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="fechaInicio" class="text-sm font-semibold text-gray-600">
-          Fecha de Nacimiento
-        </label>
-        <input
-          type="date"
-          id="fechaInicio"
-          name="fechaInicio"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={$persona.fechaInicio}
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="nacionalidad" class="text-sm font-semibold text-gray-600">
-          Nacionalidad
-        </label>
-        <input
-          type="text"
-          id="nacionalidad"
-          name="nacionalidad"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={$persona.nacionalidad}
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="sexo" class="text-sm font-semibold text-gray-600">
-          Sexo
-        </label>
-        <select
-          id="sexo"
-          name="sexo"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={$persona.sexo}
-        >
-          <option value="M">Masculino</option>
-          <option value="F">Femenino</option>          
-          <option value="O">Otro</option>
-          <option value="N">No especificado</option>
-        </select>
-      </div>
-      <div class="flex flex-col">
-        <label for="estadoCivil" class="text-sm font-semibold text-gray-600">
-          Estado Civil
-        </label>
-        <select
-          id="estadoCivil"
-          name="estadoCivil"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={$persona.estadoCivil}
-        >
-          <option value="SOLTERO">Soltero</option>
-          <option value="CASADO">Casado</option>
-          <option value="DIVORCIADO">Divorciado</option>          
-          <option value="VIUDO">Viudo</option>          
-          <option value="UNIÓN_LIBRE">UNIÓN_LIBRE</option>
-        </select>
-      </div>
-    </form>
+    <Create {persona} />
   </div>
   <div class="flex justify-end gap-2">
     <button

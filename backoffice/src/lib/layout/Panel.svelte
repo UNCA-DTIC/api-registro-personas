@@ -12,7 +12,7 @@
   });
 </script>
 
-<div class="p-4 lg:ml-52 h-auto pt-20 transition-opacity duration-500 ease-in-out"
+<div class="p-4  h-auto pt-20 transition-opacity duration-500 ease-in-out lg:ml-52  "
   class:opacity-0={isVisible === false} class:opacity-100={isVisible}> 
  <slot></slot>  
 </div>

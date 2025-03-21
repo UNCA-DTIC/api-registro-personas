@@ -40,7 +40,6 @@ const resolvers = {
 
     // Obtener una persona por cuit
     personaPorcuit: async (_, { cuit }) => {
-      console.log("🚀 ~ personaPorcuit: ~ cuit:", cuit)
       if (!cuit) {
         throw new UserInputError('Faltan datos obligatorios', {
           invalidArgs: ['cuit'],
@@ -111,12 +110,12 @@ const resolvers = {
             cuit,
             nombre: nombre.trim().toUpperCase(),
             apellido: apellido.trim().toUpperCase(),
-            razonSocial: razonSocial?.trim().toUpperCase() || "0",
-            fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
-            nacionalidad: nacionalidad?.trim().toUpperCase() || null,
+            razonSocial: razonSocial?.trim().toUpperCase() || "0", 
+            fechaInicio: fechaInicio ? new Date(fechaInicio) : new Date(0),
+            nacionalidad: nacionalidad?.trim().toUpperCase() || "N",
             sexo: sexo?.trim().toUpperCase() || "N",
             estadoCivil: estadoCivil?.trim().toUpperCase() || "N",
-            tipoPersona: tipoPersona?.trim().toUpperCase() || null,
+            tipoPersona: tipoPersona?.trim().toUpperCase() || "N",
             representanteCuit: representanteCuit?.trim().toUpperCase() || "0",
           },
         });

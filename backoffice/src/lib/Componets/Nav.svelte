@@ -7,7 +7,7 @@
     export let title = import.meta.env.VITE_APP_NAME;
 
     let listLinks = [
-           { name: "Usuarios", href: "/users" },
+       //    { name: "Usuarios", href: "/users" },
            { name: "Agentes", href: "/agentes" },
     ];
 

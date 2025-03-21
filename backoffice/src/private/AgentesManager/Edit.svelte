@@ -16,8 +16,7 @@
     const [day, month, year] = date.split("/"); // Divide la fecha en día, mes y año
     if (!day || !month || !year) return ""; // Si la fecha no tiene los 3 elementos, retorna vacío
     // Convierte al formato YYYY-MM-DD
-    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-  
+    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;  
     return formattedDate;
   }
 
@@ -25,8 +24,8 @@
 </script>
 
 <Panel>
-  <div class="grid grid-cols-6 gap-4">
-    <div class="col-span-4 col-start-2 ...">
+  <div class="flex flex-col justify-center w-[960px]"> 
+    
       <h1 class="text-2xl font-bold text-gray-800 mb-4">Editar Agente</h1>
       <div class="flex flex-col">
         <label for="cuit" class="text-sm font-semibold text-gray-600">
@@ -121,6 +120,6 @@
           </select>
         </div>
       </div>
-    </div>
+    
   </div>
 </Panel>

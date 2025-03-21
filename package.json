@@ -11,14 +11,15 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {   
+  "dependencies": {
     "apollo-server": "^3.13.0",
     "apollo-server-express": "^3.13.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "graphql": "^16.10.0",
     "morgan": "^1.10.0",
-    "prisma": "^6.5.0"
+    "prisma": "^6.5.0",
+    "svelte-notifications": "^0.9.98"
   },
   "devDependencies": {
     "@prisma/client": "^6.5.0",
