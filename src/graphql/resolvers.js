@@ -98,61 +98,87 @@ const resolvers = {
   },
 
   Mutation: {
-    // Crear una nueva persona
-    crearPersona: async (_, { 
-      cuit,
-      nombre,
-      apellido,
-      razonSocial, 
-      fechaInicio, 
-      nacionalidad, 
-      sexo, 
-      estadoCivil,
-      tipoPersona, 
-      representanteCuit,    
+    crearPersona: async (_, {
+      cuit, nombre, apellido, razonSocial, fechaInicio, nacionalidad, sexo, estadoCivil, tipoPersona, representanteCuit,
     }) => {
+      if (!cuit || !nombre || !apellido) {
+        throw new UserInputError('Faltan datos obligatorios', { invalidArgs: ['cuit', 'nombre', 'apellido'] });
+      }
+
       try {
         return await prisma.persona.create({
           data: {
             cuit,
             nombre: nombre.trim().toUpperCase(),
-            apellido: apellido.trim().toUpperCase(),    
+            apellido: apellido.trim().toUpperCase(),
+            razonSocial: razonSocial?.trim().toUpperCase() || "0",
+            fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
+            nacionalidad: nacionalidad?.trim().toUpperCase() || null,
+            sexo: sexo?.trim().toUpperCase() || "N",
+            estadoCivil: estadoCivil?.trim().toUpperCase() || "N",
+            tipoPersona: tipoPersona?.trim().toUpperCase() || null,
+            representanteCuit: representanteCuit?.trim().toUpperCase() || "0",
+          },
+        });
+      } catch (error) {
+        console.error("Error al crear la persona:", error.message);
+        throw new ApolloError('Error al crear la persona', 'INTERNAL_SERVER_ERROR');
+      }
+    },
+
+    actualizarPersona: async (_, {
+      id, nombre, apellido, razonSocial, fechaInicio, nacionalidad, sexo, estadoCivil, tipoPersona, representanteCuit,
+    }) => {
+      if (!id) {
+        throw new UserInputError('El ID es obligatorio', { invalidArgs: ['id'] });
+      }
+
+      try {
+        const personaExistente = await prisma.persona.findUnique({ where: { id: Number(id) } });
+
+        if (!personaExistente) {
+          throw new ApolloError('Persona no encontrada', 'NOT_FOUND');
+        }
+
+        return await prisma.persona.update({
+          where: { id: Number(id) },
+          data: {
+            nombre: nombre?.trim().toUpperCase(),
+            apellido: apellido?.trim().toUpperCase(),
             razonSocial: razonSocial?.trim().toUpperCase() || "0",
             fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
             nacionalidad: nacionalidad?.trim().toUpperCase() || null,
             sexo: sexo?.trim().toUpperCase() || null,
             estadoCivil: estadoCivil?.trim().toUpperCase() || null,
-            tipoPersona: tipoPersona?.trim().toUpperCase() || null, 
-            representanteCuit : representanteCuit?.trim().toUpperCase() || "0",       
+            tipoPersona: tipoPersona?.trim().toUpperCase() || null,
+            representanteCuit: representanteCuit?.trim().toUpperCase() || "0",
           },
         });
       } catch (error) {
-        console.error("Error al crear la persona:", error.message);
-        return null;
+        console.error("Error al actualizar la persona:", error.message);
+        throw new ApolloError('Error al actualizar la persona', 'INTERNAL_SERVER_ERROR');
       }
     },
 
-
-    // Actualizar persona
-    actualizarPersona: async (_, { id, nombre, apellido, fechaInicio, nacionalidad, sexo, estadoCivil }) => {
-      return await prisma.persona.update({
-        where: { id: Number(id) },
-        data: {
-          nombre: nombre?.toUpperCase(),
-          apellido: apellido?.toUpperCase(),
-          fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
-          nacionalidad: nacionalidad?.toUpperCase(),
-          sexo: sexo?.toUpperCase(),
-          estadoCivil: estadoCivil?.toUpperCase(),
-        },
-      });
-    },
-
-    // Eliminar persona
     eliminarPersona: async (_, { id }) => {
-      return await prisma.persona.delete({
-        where: { id: Number(id) },
-      });
+      if (!id) {
+        throw new UserInputError('El ID es obligatorio', { invalidArgs: ['id'] });
+      }
+
+      try {
+        const personaExistente = await prisma.persona.findUnique({ where: { id: Number(id) } });
+
+        if (!personaExistente) {
+          throw new ApolloError('Persona no encontrada', 'NOT_FOUND');
+        }
+
+        return await prisma.persona.delete({
+          where: { id: Number(id) },
+        });
+      } catch (error) {
+        console.error("Error al eliminar la persona:", error.message);
+        throw new ApolloError('Error al eliminar la persona', 'INTERNAL_SERVER_ERROR');
+      }
     },
 
     // Agregar un domicilio

@@ -44,6 +44,7 @@ enum EstadoCivil {
   DIVORCIADO
   VIUDO
   UNIÓN_LIBRE
+  N
 }
 
 model Domicilio {

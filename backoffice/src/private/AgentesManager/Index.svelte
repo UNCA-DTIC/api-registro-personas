@@ -441,8 +441,9 @@
           bind:value={$persona.sexo}
         >
           <option value="M">Masculino</option>
-          <option value="F">Femenino</option>
+          <option value="F">Femenino</option>          
           <option value="O">Otro</option>
+          <option value="N">No especificado</option>
         </select>
       </div>
       <div class="flex flex-col">
@@ -457,8 +458,9 @@
         >
           <option value="SOLTERO">Soltero</option>
           <option value="CASADO">Casado</option>
-          <option value="DIVORCIADO">Divorciado</option>
-          <option value="VIUDO">Viudo</option>
+          <option value="DIVORCIADO">Divorciado</option>          
+          <option value="VIUDO">Viudo</option>          
+          <option value="UNIÓN_LIBRE">UNIÓN_LIBRE</option>
         </select>
       </div>
     </form>
