@@ -16,7 +16,7 @@ describe("Test de Persona, Domicilio, Teléfono y Email en GraphQL", () => {
                 cuit: "20123456780",
                 nombre: "Juan",
                 apellido: "Pérez",
-                fechaNacimiento: "1990-05-15",
+                fechaInicio: "1990-05-15",
                 nacionalidad: "Argentina"
                 sexo: "M"
                 estadoCivil: "Soltero"
@@ -42,7 +42,7 @@ describe("Test de Persona, Domicilio, Teléfono y Email en GraphQL", () => {
                 id: ${personaId},              
                 nombre: "Juan",
                 apellido: "Pérez",
-                fechaNacimiento: "1990-05-15",
+                fechaInicio: "1990-05-15",
                 nacionalidad: "Argentina"
                 sexo: "M"
                 estadoCivil: "Soltero"

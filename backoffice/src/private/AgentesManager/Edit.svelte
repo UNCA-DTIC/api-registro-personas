@@ -1,38 +1,25 @@
 <script>
-// @ts-nocheck
+  // @ts-nocheck
 
   import Panel from "$lib/layout/Panel.svelte";
   import { onMount } from "svelte";
-  
+
   let fechaNac = "";
   let { rowSelected } = $props();
 
   onMount(() => {
-    fechaNac = formatDate(rowSelected.fechaNacimiento);
+    fechaNac = formatDate(rowSelected.fechaInicio);
   });
 
   function formatDate(date) {
     if (!date) return ""; // Si no hay fecha, retorna vacío
-
     const [day, month, year] = date.split("/"); // Divide la fecha en día, mes y año
     if (!day || !month || !year) return ""; // Si la fecha no tiene los 3 elementos, retorna vacío
-
-
     // Convierte al formato YYYY-MM-DD
     const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-
-    console.log("🚀 ~ formatDate ~ formattedDate:", formattedDate)
+  
     return formattedDate;
   }
-
-  function parseDateToObject(date) {
-    if (!date) return null; // Si no hay fecha, retorna null
-
-    const [year, month, day] = date.split("-"); // Divide la fecha en año, mes y día
-    if (!year || !month || !day) return null; // Si la fecha no tiene los 3 elementos, retorna null
-
-    return new Date(year, month - 1, day); // `month - 1` porque los meses en JS van de 0 a 11
-}
 
 
 </script>
@@ -71,20 +58,20 @@
         />
         <div class="flex flex-col">
           <label
-            for="fechaNacimiento"
+            for="fechaInicio"
             class="text-sm font-semibold text-gray-600"
           >
             Fecha de Nacimiento
           </label>
-         
+
           <input
             type="date"
-            id="fechaNacimiento"
-            name="fechaNacimiento"
+            id="fechaInicio"
+            name="fechaInicio"
             class="px-4 py-2 border border-gray-300 rounded-lg"
-            value={formatDate(rowSelected.fechaNacimiento)}
-            onchange={(e) => {
-              rowSelected.fechaNacimiento = parseDateToObject(e.target.value);        
+            value={formatDate(rowSelected.fechaInicio)}
+            onchange={async(e) => {
+              rowSelected.fechaInicio = e.target.value;
             }}
           />
         </div>
@@ -102,9 +89,9 @@
           />
         </div>
         <div class="flex flex-col">
-          <label for="sexo" class="text-sm font-semibold text-gray-600"
-            >Sexo</label
-          >
+          <label for="sexo" class="text-sm font-semibold text-gray-600">
+            Sexo
+          </label>
           <select
             id="sexo"
             name="sexo"
@@ -118,9 +105,9 @@
         </div>
 
         <div class="flex flex-col">
-          <label for="estadoCivil" class="text-sm font-semibold text-gray-600"
-            >Estado Civil</label
-          >
+          <label for="estadoCivil" class="text-sm font-semibold text-gray-600">
+            Estado Civil
+          </label>
           <select
             id="estadoCivil"
             name="estadoCivil"

@@ -40,15 +40,21 @@ const resolvers = {
 
     // Obtener una persona por cuit
     personaPorcuit: async (_, { cuit }) => {
+      console.log("🚀 ~ personaPorcuit: ~ cuit:", cuit)
       if (!cuit) {
         throw new UserInputError('Faltan datos obligatorios', {
           invalidArgs: ['cuit'],
         });
       }
-      return await prisma.persona.findFirst({
-        where: { cuit },
+       const a= await prisma.persona.findFirst({
+        where: {
+          cuit: {
+            startsWith: cuit, // Busca cualquier cuit que empiece con el valor dado
+          },
+        },
         include: { domicilios: true, telefonos: true, emails: true },
       });
+      return a;
     },
 
     // Obtener todos los domicilios
@@ -93,17 +99,31 @@ const resolvers = {
 
   Mutation: {
     // Crear una nueva persona
-    crearPersona: async (_, { cuit, nombre, apellido, fechaNacimiento, nacionalidad, sexo, estadoCivil }) => {
+    crearPersona: async (_, { 
+      cuit,
+      nombre,
+      apellido,
+      razonSocial, 
+      fechaInicio, 
+      nacionalidad, 
+      sexo, 
+      estadoCivil,
+      tipoPersona, 
+      representanteCuit,    
+    }) => {
       try {
         return await prisma.persona.create({
           data: {
             cuit,
             nombre: nombre.trim().toUpperCase(),
             apellido: apellido.trim().toUpperCase(),    
-            fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : undefined,
+            razonSocial: razonSocial?.trim().toUpperCase() || "0",
+            fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
             nacionalidad: nacionalidad?.trim().toUpperCase() || null,
             sexo: sexo?.trim().toUpperCase() || null,
             estadoCivil: estadoCivil?.trim().toUpperCase() || null,
+            tipoPersona: tipoPersona?.trim().toUpperCase() || null, 
+            representanteCuit : representanteCuit?.trim().toUpperCase() || "0",       
           },
         });
       } catch (error) {
@@ -114,13 +134,13 @@ const resolvers = {
 
 
     // Actualizar persona
-    actualizarPersona: async (_, { id, nombre, apellido, fechaNacimiento, nacionalidad, sexo, estadoCivil }) => {
+    actualizarPersona: async (_, { id, nombre, apellido, fechaInicio, nacionalidad, sexo, estadoCivil }) => {
       return await prisma.persona.update({
         where: { id: Number(id) },
         data: {
           nombre: nombre?.toUpperCase(),
           apellido: apellido?.toUpperCase(),
-          fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : undefined,
+          fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
           nacionalidad: nacionalidad?.toUpperCase(),
           sexo: sexo?.toUpperCase(),
           estadoCivil: estadoCivil?.toUpperCase(),

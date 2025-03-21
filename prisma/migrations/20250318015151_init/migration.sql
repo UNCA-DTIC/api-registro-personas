@@ -4,7 +4,7 @@ CREATE TABLE "Persona" (
     "cuit" TEXT NOT NULL,
     "nombre" TEXT NOT NULL,
     "apellido" TEXT NOT NULL,
-    "fechaNacimiento" TIMESTAMP(3) NOT NULL,
+    "fechaInicio" TIMESTAMP(3) NOT NULL,
     "nacionalidad" TEXT,
     "sexo" CHAR(1),
     "estadoCivil" TEXT,

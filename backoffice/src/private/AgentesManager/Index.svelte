@@ -1,5 +1,5 @@
 <script>
-// @ts-nocheck
+  // @ts-nocheck
 
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
@@ -21,83 +21,93 @@
     { label: "Cuit", key: "cuit" },
     { label: "Apellido", key: "apellido" },
     { label: "Nombre", key: "nombre" },
-    { label: "Fecha de Nacimiento", key: "fechaNacimiento" },
+    { label: "Razon Social", key: "razonSocial" },
+    { label: "Fecha de Inicio", key: "fechaInicio" },
     { label: "Nacionalidad", key: "nacionalidad" },
     { label: "Sexo", key: "sexo" },
     { label: "Estado Civil", key: "estadoCivil" },
+    { label: "Tipo Persona", key: "tipoPersona" },
+    { label: "Representante Cuit", key: "representanteCuit" },
   ];
 
   const persona = writable({
     cuit: "",
     nombre: "",
     apellido: "",
-    fechaNacimiento: "",
+    razonSocial: "",
+    fechaInicio: "",
     nacionalidad: "",
     sexo: "O",
     estadoCivil: "SOLTERO",
+    tipoPersona: "FISICA",
+    representanteCuit: "0",
   });
 
   async function fetchPersonas() {
-  try {
-    let $paginaActual;
-    paginaActual.subscribe((value) => ($paginaActual = value))();
+    try {
+      let $paginaActual;
+      paginaActual.subscribe((value) => ($paginaActual = value))();
 
-    const offset = ($paginaActual - 1) * LIMITE_POR_PAGINA;
-    const query = `
+      const offset = ($paginaActual - 1) * LIMITE_POR_PAGINA;
+      const query = `
       query {
         personas(skip: ${offset}, take: ${LIMITE_POR_PAGINA}) {
           id
-          nombre
-          apellido
-          cuit
-          fechaNacimiento
-          nacionalidad
-          sexo
-          estadoCivil
+          cuit,
+          nombre,
+          apellido,
+          razonSocial, 
+          fechaInicio, 
+          nacionalidad, 
+          sexo, 
+          estadoCivil,
+          tipoPersona, 
+          representanteCuit,    
         }
         totalPersonas
       }
     `;
 
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
-    });
-
-    const result = await response.json(); 
-
-    if (result.data) {
-      // Filtramos valores nulos
-      const personasFiltradas = result.data.personas.filter(Boolean);
-
-      // Convertimos fechaNacimiento al formato esperado
-      personasFiltradas.forEach((persona) => {
-        if (persona.fechaNacimiento) {
-          try {
-            persona.fechaNacimiento = persona.fechaNacimiento
-              .split("T")[0]
-              .split("-")
-              .reverse()
-              .join("/");
-          } catch (e) {
-            console.error("Error al formatear fecha:", e);
-          }
-        }
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
       });
 
-      data.set(personasFiltradas);
-      totalRows.set(result.data.totalPersonas);
-      totalPaginas.set(
-        Math.ceil(result.data.totalPersonas / LIMITE_POR_PAGINA),
-      );
-    } else {
-      console.error("Error al obtener personas:", result.errors);
+      const result = await response.json();
+      console.log("🚀 ~ fetchPersonas ~ result:", result)
+
+      if (result.data) {
+        // Filtramos valores nulos
+        const personasFiltradas = result.data.personas.filter(Boolean);
+
+        // Convertimos fechaInicio al formato esperado
+        personasFiltradas.forEach((persona) => {
+          if (persona.fechaInicio) {
+            try {
+              persona.fechaInicio = persona.fechaInicio
+                .split("T")[0]
+                .split("-")
+                .reverse()
+                .join("/");
+            } catch (e) {
+              console.error("Error al formatear fecha:", e);
+            }
+          }
+        });
+
+        data.set(personasFiltradas);
+        totalRows.set(result.data.totalPersonas);
+        totalPaginas.set(
+          Math.ceil(result.data.totalPersonas / LIMITE_POR_PAGINA),
+        );
+      } else {
+        console.error("Error al obtener personas:", result.errors);
+      }
+    } catch (error) {
+      console.error("Error en fetchPersonas:", error);
     }
-  } catch (error) {
-    console.error("Error en fetchPersonas:", error);
   }
-}
 
   async function crearPersona() {
     try {
@@ -108,12 +118,15 @@
         mutation {
           crearPersona(
             cuit: "${$persona.cuit}",
-            nombre: "${$persona.nombre}",
+            nombre: "${$persona.nombre}",            
             apellido: "${$persona.apellido}",
-            fechaNacimiento: "${$persona.fechaNacimiento}",
+            razonSocial: "${$persona.razonSocial}",
+            fechaInicio: "${$persona.fechaInicio}",
             nacionalidad: "${$persona.nacionalidad}",
             sexo: "${$persona.sexo}",
             estadoCivil: "${$persona.estadoCivil}"
+            tipoPersona: "${$persona.tipoPersona}"
+            representanteCuit: "${$persona.representanteCuit}"
           ) {
             id
             nombre
@@ -135,10 +148,13 @@
           cuit: "",
           nombre: "",
           apellido: "",
-          fechaNacimiento: "",
+          razonSocial: "",
+          fechaInicio: "",
           nacionalidad: "",
-          sexo: "",
-          estadoCivil: "",
+          sexo: "O",
+          estadoCivil: "SOLTERO",
+          tipoPersona: "FISICA",
+          representanteCuit: "0",
         });
       } else {
         console.error("Error al crear persona:", result.errors);
@@ -148,9 +164,19 @@
     }
   }
 
-  async function updatePersona(rowSelected) { 
-   const fec = rowSelected.fechaNacimiento
-    console.log("🚀 ~ updatePersona ~ fec:", fec)
+  async function updatePersona(rowSelected) {
+    if (typeof rowSelected.fechaInicio === "string") {
+      const fechaStr = rowSelected.fechaInicio.trim(); // Evita espacios en blanco inesperados
+
+      if (fechaStr.includes("/")) {
+        const [day, month, year] = fechaStr.split("/");
+        rowSelected.fechaInicio = new Date(year, month - 1, day);
+      } else if (fechaStr.includes("-")) {
+        const [year, month, day] = fechaStr.split("-");
+        rowSelected.fechaInicio = new Date(year, month - 1, day);
+      }
+    }
+
     try {
       const mutation = `
         mutation {
@@ -158,15 +184,14 @@
             id: ${rowSelected.id},
             nombre: "${rowSelected.nombre}",
             apellido: "${rowSelected.apellido}",
-            fechaNacimiento: "${rowSelected.fechaNacimiento}",
+            fechaInicio: "${rowSelected.fechaInicio}",
             nacionalidad: "${rowSelected.nacionalidad}",
             sexo: "${rowSelected.sexo}",
             estadoCivil: "${rowSelected.estadoCivil}"
           ) {
             id
             nombre
-            apellido
-
+            apellido          
           }
         }
       `;
@@ -177,7 +202,6 @@
       });
 
       const result = await response.json();
-      console.log("🚀 ~ updatePersona ~ result:", result)
       if (result.data) {
         fetchPersonas();
       } else {
@@ -205,6 +229,54 @@
       }
     } catch (error) {
       console.error("Error en eliminarPersona:", error);
+    }
+  }
+
+  async function searchCuit(cuit) {
+    try {
+      const query = `
+        query {
+          personaPorcuit(cuit: "${cuit}") {
+            id
+            nombre
+            apellido
+            cuit
+            fechaInicio
+            nacionalidad
+            sexo
+            estadoCivil            
+          }
+        }
+      `;
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+
+      const result = await response.json();
+      if (result.data) {
+        const persona = result.data.personaPorcuit;
+        if (persona) {
+          persona.fechaInicio = persona.fechaInicio
+            .split("T")[0]
+            .split("-")
+            .reverse()
+            .join("/");
+          data.set([persona]);
+          totalRows.set(1);
+          totalPaginas.set(1);
+        } else {
+          data.set([]);
+          totalRows.set(0);
+          totalPaginas.set(0);
+        }
+      } else {
+        console.error("Error al buscar persona por cuit:", result.errors);
+      }
+    } catch (error) {
+      console.error("Error en searchCuit:", error);
     }
   }
 
@@ -237,6 +309,7 @@
     <Panel>
       <h1 class="text-2xl font-bold text-gray-800 mb-4">Gestión de Agentes</h1>
       <Table
+        searchTitle="Buscar por Cuit..."
         title="Agentes"
         itemsPerPage={5}
         showSearch="true"
@@ -258,23 +331,30 @@
         data={$data}
         {paginate}
         search={(query) => {
-          console.log("🚀 ~ query:", query);
+          if (query.length > 5) {
+            console.log("🚀 ~ query:", query);
+            searchCuit(query);
+          } else {
+            fetchPersonas();
+          }
         }}
       />
     </Panel>
   {/if}
   {#if showPanel === 2}
     <Edit {rowSelected} />
-  
+
     <div class="flex justify-end gap-2 pt-4">
       <button
         class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-        onclick={selectPanel(1)}>
+        onclick={selectPanel(1)}
+      >
         Cancelar
       </button>
       <button
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        onclick={async () => await updatePersona(rowSelected)}>
+        onclick={async () => await updatePersona(rowSelected)}
+      >
         Guardar
       </button>
     </div>
@@ -327,18 +407,15 @@
         />
       </div>
       <div class="flex flex-col">
-        <label
-          for="fechaNacimiento"
-          class="text-sm font-semibold text-gray-600"
-        >
+        <label for="fechaInicio" class="text-sm font-semibold text-gray-600">
           Fecha de Nacimiento
         </label>
         <input
           type="date"
-          id="fechaNacimiento"
-          name="fechaNacimiento"
+          id="fechaInicio"
+          name="fechaInicio"
           class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={$persona.fechaNacimiento}
+          bind:value={$persona.fechaInicio}
         />
       </div>
       <div class="flex flex-col">

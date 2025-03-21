@@ -7,20 +7,43 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
 model Persona {
-  id             Int      @id @default(autoincrement())
-  cuit           String   @unique
-  nombre         String?
-  apellido       String?
-  razonSocial    String?
-  fechaNacimiento DateTime?
-  nacionalidad   String?
-  sexo           String?  @db.Char(1)
-  estadoCivil    String?
-  fechaCreacion  DateTime @default(now())  
-  domicilios Domicilio[]
-  telefonos  Telefono[]
-  emails     Email[]
+  id              Int        @id @default(autoincrement())
+  cuit            String     @unique
+  nombre          String?
+  apellido        String?
+  razonSocial     String?
+  fechaInicio     DateTime?
+  nacionalidad    String?
+  sexo            Sexo?
+  estadoCivil     EstadoCivil?
+  fechaCreacion   DateTime   @default(now())
+  tipoPersona     TipoPersona
+  representanteCuit String?       // Relación con representante legal (si es persona jurídica)
+  domicilios      Domicilio[]
+  telefonos       Telefono[]
+  emails          Email[]
+}
+
+enum TipoPersona {
+  FISICA
+  JURIDICA
+}
+
+enum Sexo {
+  M
+  F
+  O
+  N
+}
+
+enum EstadoCivil {
+  SOLTERO
+  CASADO
+  DIVORCIADO
+  VIUDO
+  UNIÓN_LIBRE
 }
 
 model Domicilio {
