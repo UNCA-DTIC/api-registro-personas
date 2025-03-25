@@ -1,8 +1,8 @@
 <script>
   // @ts-nocheck
 
-  import { getNotificationsContext } from 'svelte-notifications';
-const { addNotification } = getNotificationsContext();
+  import { getNotificationsContext } from "svelte-notifications";
+  const { addNotification  } = getNotificationsContext();
 
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
@@ -54,23 +54,23 @@ const { addNotification } = getNotificationsContext();
 
       const offset = ($paginaActual - 1) * LIMITE_POR_PAGINA;
       const query = `
-      query {
-        personas(skip: ${offset}, take: ${LIMITE_POR_PAGINA}) {
-          id
-          cuit,
-          nombre,
-          apellido,
-          razonSocial, 
-          fechaInicio, 
-          nacionalidad, 
-          sexo, 
-          estadoCivil,
-          tipoPersona, 
-          representanteCuit,    
-        }
-        totalPersonas
+    query {
+      personas(skip: ${offset}, take: ${LIMITE_POR_PAGINA}) {
+        id
+        cuit,
+        nombre,
+        apellido,
+        razonSocial, 
+        fechaInicio, 
+        nacionalidad, 
+        sexo, 
+        estadoCivil,
+        tipoPersona, 
+        representanteCuit,    
       }
-    `;
+      totalPersonas
+    }
+  `;
 
       const response = await fetch(API_URL, {
         method: "POST",
@@ -78,13 +78,11 @@ const { addNotification } = getNotificationsContext();
         body: JSON.stringify({ query }),
       });
 
-      const result = await response.json();   
+      const result = await response.json();
 
       if (result.data) {
-        // Filtramos valores nulos
         const personasFiltradas = result.data.personas.filter(Boolean);
 
-        // Convertimos fechaInicio al formato esperado
         personasFiltradas.forEach((persona) => {
           if (persona.fechaInicio) {
             try {
@@ -92,35 +90,18 @@ const { addNotification } = getNotificationsContext();
                 .split("T")[0]
                 .split("-")
                 .reverse()
-                .join("/");             
+                .join("/");
             } catch (e) {
               console.error("Error al formatear fecha:", e);
             }
           }
-          if(persona.razonSocial === "N"){
-            persona.razonSocial = "";
-          }
-          if(persona.representanteCuit === "0"){
-            persona.representanteCuit = "";
-          }
-          if(persona.nombre === "N"){
-            persona.nombre = "";
-          }
-          if(persona.apellido === "N"){
-            persona.apellido = "";
-          }
-                // nacionalidad N
-          if(persona.nacionalidad === "N"){
-            persona.nacionalidad = "";
-          }
-          // sexo N
-          if(persona.sexo === "N"){
-            persona.sexo = "";
-          }
-          // estadoCivil N
-          if(persona.estadoCivil === "N"){
-            persona.estadoCivil = "";
-          }
+          if (persona.razonSocial === "N") persona.razonSocial = "";
+          if (persona.representanteCuit === "0") persona.representanteCuit = "";
+          if (persona.nombre === "N") persona.nombre = "";
+          if (persona.apellido === "N") persona.apellido = "";
+          if (persona.nacionalidad === "N") persona.nacionalidad = "";
+          if (persona.sexo === "N") persona.sexo = "";
+          if (persona.estadoCivil === "N") persona.estadoCivil = "";
         });
 
         data.set(personasFiltradas);
@@ -128,11 +109,15 @@ const { addNotification } = getNotificationsContext();
         totalPaginas.set(
           Math.ceil(result.data.totalPersonas / LIMITE_POR_PAGINA),
         );
+
+        addNotification({ text: "Personas cargadas con éxito", type: "success" });
       } else {
         console.error("Error al obtener personas:", result.errors);
+        addNotification({ text: "Error al cargar personas", type: "error" });
       }
     } catch (error) {
       console.error("Error en fetchPersonas:", error);
+      addNotification({ text: "Error en la conexión", type: "error" });
     }
   }
 
@@ -148,7 +133,10 @@ const { addNotification } = getNotificationsContext();
         $persona.estadoCivil = "N";
         $persona.nacionalidad = "";
         if ($persona.representanteCuit === "") {
-          alert("Debe ingresar el cuit del representante");
+          addNotification({
+            text: "Debe ingresar el CUIT del representante",
+            type: "warning",
+          });
           return;
         }
       }
@@ -157,27 +145,26 @@ const { addNotification } = getNotificationsContext();
         $persona.representanteCuit = "0";
       }
 
-      
       const mutation = `
-        mutation {
-          crearPersona(
-            cuit: "${$persona.cuit}",
-            nombre: "${$persona.nombre}",            
-            apellido: "${$persona.apellido}",
-            razonSocial: "${$persona.razonSocial}",
-            fechaInicio: "${$persona.fechaInicio}",
-            nacionalidad: "${$persona.nacionalidad}",
-            sexo: "${$persona.sexo}",
-            estadoCivil: "${$persona.estadoCivil}"
-            tipoPersona: "${$persona.tipoPersona}"
-            representanteCuit: "${$persona.representanteCuit}"
-          ) {
-            id
-            nombre
-            apellido
-          }
+      mutation {
+        crearPersona(
+          cuit: "${$persona.cuit}",
+          nombre: "${$persona.nombre}",            
+          apellido: "${$persona.apellido}",
+          razonSocial: "${$persona.razonSocial}",
+          fechaInicio: "${$persona.fechaInicio}",
+          nacionalidad: "${$persona.nacionalidad}",
+          sexo: "${$persona.sexo}",
+          estadoCivil: "${$persona.estadoCivil}"
+          tipoPersona: "${$persona.tipoPersona}"
+          representanteCuit: "${$persona.representanteCuit}"
+        ) {
+          id
+          nombre
+          apellido
         }
-      `;
+      }
+    `;
 
       const response = await fetch(API_URL, {
         method: "POST",
@@ -200,62 +187,69 @@ const { addNotification } = getNotificationsContext();
           tipoPersona: "FISICA",
           representanteCuit: "0",
         });
+
+        addNotification({ text: "Persona creada con éxito", type: "success" });
       } else {
         console.error("Error al crear persona:", result.errors);
+        addNotification({ text: "Error al crear persona", type: "error" });
       }
     } catch (error) {
       console.error("Error en crearPersona:", error);
+      addNotification({ text: "Error en la conexión", type: "error" });
     }
     hiddenEnable = false;
   }
 
   async function updatePersona(rowSelected) {
-    if (typeof rowSelected.fechaInicio === "string") {
-      const fechaStr = rowSelected.fechaInicio.trim(); // Evita espacios en blanco inesperados
-
-      if (fechaStr.includes("/")) {
-        const [day, month, year] = fechaStr.split("/");
-        rowSelected.fechaInicio = new Date(year, month - 1, day);
-      } else if (fechaStr.includes("-")) {
-        const [year, month, day] = fechaStr.split("-");
-        rowSelected.fechaInicio = new Date(year, month - 1, day);
-      }
-    }
-
-    try {
-      const mutation = `
-        mutation {
-          actualizarPersona(
-            id: ${rowSelected.id},
-            nombre: "${rowSelected.nombre}",
-            apellido: "${rowSelected.apellido}",
-            fechaInicio: "${rowSelected.fechaInicio}",
-            nacionalidad: "${rowSelected.nacionalidad}",
-            sexo: "${rowSelected.sexo}",
-            estadoCivil: "${rowSelected.estadoCivil}"
-          ) {
-            id
-            nombre
-            apellido          
-          }
-        }
-      `;
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: mutation }),
-      });
-
-      const result = await response.json();
-      if (result.data) {
-        fetchPersonas();
-      } else {
-        console.error("Error al actualizar persona:", result.errors);
-      }
-    } catch (error) {
-      console.error("Error en updatePersona:", error);
+  if (typeof rowSelected.fechaInicio === "string") {
+    const fechaStr = rowSelected.fechaInicio.trim();
+    if (fechaStr.includes("/")) {
+      const [day, month, year] = fechaStr.split("/");
+      rowSelected.fechaInicio = new Date(year, month - 1, day);
+    } else if (fechaStr.includes("-")) {
+      const [year, month, day] = fechaStr.split("-");
+      rowSelected.fechaInicio = new Date(year, month - 1, day);
     }
   }
+
+  try {
+    const mutation = `
+      mutation {
+        actualizarPersona(
+          id: ${rowSelected.id},
+          nombre: "${rowSelected.nombre}",
+          apellido: "${rowSelected.apellido}",
+          fechaInicio: "${rowSelected.fechaInicio}",
+          nacionalidad: "${rowSelected.nacionalidad}",
+          sexo: "${rowSelected.sexo}",
+          estadoCivil: "${rowSelected.estadoCivil}"
+        ) {
+          id
+          nombre
+          apellido          
+        }
+      }
+    `;
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: mutation }),
+    });
+
+    const result = await response.json();
+    if (result.data) {
+      fetchPersonas();
+      addNotification({ text: "Persona actualizada con éxito", type: "success" });
+    } else {
+      console.error("Error al actualizar persona:", result.errors);
+      addNotification({ text: "Error al actualizar persona", type: "error" });
+    }
+  } catch (error) {
+    console.error("Error en updatePersona:", error);
+    addNotification({ text: "Error en la conexión", type: "error" });
+  }
+}
 
   async function eliminarPersona(id) {
     try {
@@ -269,61 +263,68 @@ const { addNotification } = getNotificationsContext();
       const result = await response.json();
       if (result.data) {
         fetchPersonas();
+        addNotification({ text: "Persona eliminada con éxito", type: "success" });
       } else {
         console.error("Error al eliminar persona:", result.errors);
+        addNotification({ text: "Error al eliminar persona", type: "error" });
       }
     } catch (error) {
       console.error("Error en eliminarPersona:", error);
+      addNotification({ text: "Error en la conexión", type: "error" });
     }
   }
 
-  async function searchCuit(cuit) {
-    try {
-      const query = `
-        query {
-          personaPorcuit(cuit: "${cuit}") {
-            id
-            nombre
-            apellido
-            cuit
-            fechaInicio
-            nacionalidad
-            sexo
-            estadoCivil            
-          }
+async function searchCuit(cuit) {
+  try {
+    const query = `
+      query {
+        personaPorcuit(cuit: "${cuit}") {
+          id
+          nombre
+          apellido
+          cuit
+          fechaInicio
+          nacionalidad
+          sexo
+          estadoCivil            
         }
-      `;
-
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
-      });
-
-      const result = await response.json();
-      if (result.data) {
-        const persona = result.data.personaPorcuit;
-        if (persona) {
-          persona.fechaInicio = persona.fechaInicio
-            .split("T")[0]
-            .split("-")
-            .reverse()
-            .join("/");
-          data.set([persona]);
-          totalRows.set(1);
-          totalPaginas.set(1);
-        } else {
-          data.set([]);
-          totalRows.set(0);
-          totalPaginas.set(0);
-        }
-      } else {
-        console.error("Error al buscar persona por cuit:", result.errors);
       }
-    } catch (error) {
-      console.error("Error en searchCuit:", error);
+    `;
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    });
+
+    const result = await response.json();
+    if (result.data) {
+      const persona = result.data.personaPorcuit;
+      if (persona) {
+        persona.fechaInicio = persona.fechaInicio
+          .split("T")[0]
+          .split("-")
+          .reverse()
+          .join("/");
+        data.set([persona]);
+        totalRows.set(1);
+        totalPaginas.set(1);
+        addNotification({ text: "Persona encontrada", type: "success" });
+      } else {
+        data.set([]);
+        totalRows.set(0);
+        totalPaginas.set(0);
+        addNotification({ text: "No se encontró una persona con ese CUIT", type: "warning" });
+      }
+    } else {
+      console.error("Error al buscar persona por CUIT:", result.errors);
+      addNotification({ text: "Error al buscar persona", type: "error" });
     }
+  } catch (error) {
+    console.error("Error en searchCuit:", error);
+    addNotification({ text: "Error en la conexión", type: "error" });
   }
+}
 
   function paginate(direccion) {
     paginaActual.update((n) => {
@@ -347,18 +348,11 @@ const { addNotification } = getNotificationsContext();
 
   let rowSelected = {};
   $: rowSelected;
-
-
-
-
 </script>
 
-
-
 <LayoutPage>
-
   {#if showPanel === 1}
-    <Panel>      
+    <Panel>
       <h1 class="text-2xl font-bold text-gray-800 mb-4">Gestión de Personas</h1>
       <Table
         searchTitle="Buscar por Cuit..."
