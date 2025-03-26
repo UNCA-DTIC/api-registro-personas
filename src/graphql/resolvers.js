@@ -58,6 +58,7 @@ const resolvers = {
 
     // Obtener todos los domicilios
     domicilios: async () => {
+      console.log("🚀 ~ domicilios: ~ prisma:")
       return await prisma.domicilio.findMany({ include: { persona: true } });
     },
 

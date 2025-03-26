@@ -12,8 +12,10 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tsconfig/svelte": "^5.0.4",
+    "@zerodevx/svelte-toast": "^0.9.6",
     "svelte": "^5.19.6",
     "svelte-check": "^4.1.4",
+    "svelte-notifications": "^0.9.98",
     "svelte5-router": "^3.0.2",
     "typescript": "~5.7.2",
     "vite": "^6.1.0"

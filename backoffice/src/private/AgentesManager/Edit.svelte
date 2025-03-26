@@ -3,7 +3,6 @@
 
   import Panel from "$lib/layout/Panel.svelte";
   import { onMount } from "svelte";
-
   let fechaNac = "";
   let { rowSelected } = $props();
 

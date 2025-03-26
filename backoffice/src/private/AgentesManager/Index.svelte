@@ -1,9 +1,6 @@
 <script>
   // @ts-nocheck
-
-  import { getNotificationsContext } from "svelte-notifications";
-  const { addNotification  } = getNotificationsContext();
-
+  import { toast } from "@zerodevx/svelte-toast";
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
   import Edit from "./Edit.svelte";
@@ -12,6 +9,7 @@
   import Table from "../../lib/Componets/Table/Table.svelte";
   import LayoutPage from "../layout/LayoutPage.svelte";
   import Create from "./Create.svelte";
+  import Domicilios from "./Domicilios/Index.svelte";
 
   const API_URL = import.meta.env.VITE_API_HOST_AGENTES;
   const LIMITE_POR_PAGINA = 5;
@@ -110,14 +108,17 @@
           Math.ceil(result.data.totalPersonas / LIMITE_POR_PAGINA),
         );
 
-        addNotification({ text: "Personas cargadas con éxito", type: "success" });
+        notificar({
+          text: "Personas cargadas con éxito",
+          type: "success",
+        });
       } else {
         console.error("Error al obtener personas:", result.errors);
-        addNotification({ text: "Error al cargar personas", type: "error" });
+        notificar({ text: "Error al cargar personas", type: "error" });
       }
     } catch (error) {
       console.error("Error en fetchPersonas:", error);
-      addNotification({ text: "Error en la conexión", type: "error" });
+      notificar({ text: "Error en la conexión", type: "error" });
     }
   }
 
@@ -133,7 +134,7 @@
         $persona.estadoCivil = "N";
         $persona.nacionalidad = "";
         if ($persona.representanteCuit === "") {
-          addNotification({
+          notificar({
             text: "Debe ingresar el CUIT del representante",
             type: "warning",
           });
@@ -188,32 +189,32 @@
           representanteCuit: "0",
         });
 
-        addNotification({ text: "Persona creada con éxito", type: "success" });
+        notificar({ text: "Persona creada con éxito", type: "success" });
       } else {
         console.error("Error al crear persona:", result.errors);
-        addNotification({ text: "Error al crear persona", type: "error" });
+        notificar({ text: "Error al crear persona", type: "error" });
       }
     } catch (error) {
       console.error("Error en crearPersona:", error);
-      addNotification({ text: "Error en la conexión", type: "error" });
+      notificar({ text: "Error en la conexión", type: "error" });
     }
     hiddenEnable = false;
   }
 
   async function updatePersona(rowSelected) {
-  if (typeof rowSelected.fechaInicio === "string") {
-    const fechaStr = rowSelected.fechaInicio.trim();
-    if (fechaStr.includes("/")) {
-      const [day, month, year] = fechaStr.split("/");
-      rowSelected.fechaInicio = new Date(year, month - 1, day);
-    } else if (fechaStr.includes("-")) {
-      const [year, month, day] = fechaStr.split("-");
-      rowSelected.fechaInicio = new Date(year, month - 1, day);
+    if (typeof rowSelected.fechaInicio === "string") {
+      const fechaStr = rowSelected.fechaInicio.trim();
+      if (fechaStr.includes("/")) {
+        const [day, month, year] = fechaStr.split("/");
+        rowSelected.fechaInicio = new Date(year, month - 1, day);
+      } else if (fechaStr.includes("-")) {
+        const [year, month, day] = fechaStr.split("-");
+        rowSelected.fechaInicio = new Date(year, month - 1, day);
+      }
     }
-  }
 
-  try {
-    const mutation = `
+    try {
+      const mutation = `
       mutation {
         actualizarPersona(
           id: ${rowSelected.id},
@@ -231,25 +232,28 @@
       }
     `;
 
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: mutation }),
-    });
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: mutation }),
+      });
 
-    const result = await response.json();
-    if (result.data) {
-      fetchPersonas();
-      addNotification({ text: "Persona actualizada con éxito", type: "success" });
-    } else {
-      console.error("Error al actualizar persona:", result.errors);
-      addNotification({ text: "Error al actualizar persona", type: "error" });
+      const result = await response.json();
+      if (result.data) {
+        fetchPersonas();
+        notificar({
+          text: "Persona actualizada con éxito",
+          type: "success",
+        });
+      } else {
+        console.error("Error al actualizar persona:", result.errors);
+        notificar({ text: "Error al actualizar persona", type: "error" });
+      }
+    } catch (error) {
+      console.error("Error en updatePersona:", error);
+      notificar({ text: "Error en la conexión", type: "error" });
     }
-  } catch (error) {
-    console.error("Error en updatePersona:", error);
-    addNotification({ text: "Error en la conexión", type: "error" });
   }
-}
 
   async function eliminarPersona(id) {
     try {
@@ -263,20 +267,23 @@
       const result = await response.json();
       if (result.data) {
         fetchPersonas();
-        addNotification({ text: "Persona eliminada con éxito", type: "success" });
+        notificar({
+          text: "Persona eliminada con éxito",
+          type: "success",
+        });
       } else {
         console.error("Error al eliminar persona:", result.errors);
-        addNotification({ text: "Error al eliminar persona", type: "error" });
+        notificar({ text: "Error al eliminar persona", type: "error" });
       }
     } catch (error) {
       console.error("Error en eliminarPersona:", error);
-      addNotification({ text: "Error en la conexión", type: "error" });
+      notificar({ text: "Error en la conexión", type: "error" });
     }
   }
 
-async function searchCuit(cuit) {
-  try {
-    const query = `
+  async function searchCuit(cuit) {
+    try {
+      const query = `
       query {
         personaPorcuit(cuit: "${cuit}") {
           id
@@ -291,40 +298,43 @@ async function searchCuit(cuit) {
       }
     `;
 
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
-    });
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
 
-    const result = await response.json();
-    if (result.data) {
-      const persona = result.data.personaPorcuit;
-      if (persona) {
-        persona.fechaInicio = persona.fechaInicio
-          .split("T")[0]
-          .split("-")
-          .reverse()
-          .join("/");
-        data.set([persona]);
-        totalRows.set(1);
-        totalPaginas.set(1);
-        addNotification({ text: "Persona encontrada", type: "success" });
+      const result = await response.json();
+      if (result.data) {
+        const persona = result.data.personaPorcuit;
+        if (persona) {
+          persona.fechaInicio = persona.fechaInicio
+            .split("T")[0]
+            .split("-")
+            .reverse()
+            .join("/");
+          data.set([persona]);
+          totalRows.set(1);
+          totalPaginas.set(1);
+          notificar({ text: "Persona encontrada", type: "success" });
+        } else {
+          data.set([]);
+          totalRows.set(0);
+          totalPaginas.set(0);
+          notificar({
+            text: "No se encontró una persona con ese CUIT",
+            type: "warning",
+          });
+        }
       } else {
-        data.set([]);
-        totalRows.set(0);
-        totalPaginas.set(0);
-        addNotification({ text: "No se encontró una persona con ese CUIT", type: "warning" });
+        console.error("Error al buscar persona por CUIT:", result.errors);
+        notificar({ text: "Error al buscar persona", type: "error" });
       }
-    } else {
-      console.error("Error al buscar persona por CUIT:", result.errors);
-      addNotification({ text: "Error al buscar persona", type: "error" });
+    } catch (error) {
+      console.error("Error en searchCuit:", error);
+      notificar({ text: "Error en la conexión", type: "error" });
     }
-  } catch (error) {
-    console.error("Error en searchCuit:", error);
-    addNotification({ text: "Error en la conexión", type: "error" });
   }
-}
 
   function paginate(direccion) {
     paginaActual.update((n) => {
@@ -348,6 +358,17 @@ async function searchCuit(cuit) {
 
   let rowSelected = {};
   $: rowSelected;
+
+  function notificar({ text, type }) {
+    toast.push(text, {
+      theme: {
+        "--toastBackground":
+          type === "success" ? "green" : type === "error" ? "red" : "orange",
+        "--toastColor": "white",
+      },
+    });
+  }
+ 
 </script>
 
 <LayoutPage>
@@ -357,7 +378,7 @@ async function searchCuit(cuit) {
       <Table
         searchTitle="Buscar por Cuit..."
         title="Personas"
-        itemsPerPage={5}
+        itemsPerPage={LIMITE_POR_PAGINA}
         showSearch="true"
         showAddButton="true"
         pagination={{
@@ -404,6 +425,9 @@ async function searchCuit(cuit) {
           Guardar
         </button>
       </div>
+      <Panel>
+        <Domicilios cuit= {rowSelected.cuit} />
+      </Panel>
     </div>
   {/if}
 </LayoutPage>
