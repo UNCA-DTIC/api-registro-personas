@@ -183,18 +183,25 @@ const resolvers = {
 
     // Agregar un domicilio
     agregarDomicilio: async (_, { personaId, calle, numero, ciudad, provincia, pais, codigoPostal }) => {
+
+      try {
       return await prisma.domicilio.create({
         data: {
-          personaId: Number(personaId),
-          calle,
-          numero,
-          ciudad,
-          provincia,
-          pais,
-          codigoPostal,
+          personaId: 11,
+          calle:"sa",
+          numero:"ss",
+          ciudad:"aaa",
+          provincia:"aaa",
+          pais:"aaa",
+          codigoPostal:"aaa",
           fechaActualizacion: new Date(),
         },
       });
+    } catch (error) {
+      console.error("Error al agregar el domicilio:", error.message);
+      throw new ApolloError('Error al agregar el domicilio', 'INTERNAL_SERVER_ERROR');  
+    }
+
     },
 
     // Actualizar un domicilio

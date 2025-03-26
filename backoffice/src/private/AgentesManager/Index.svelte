@@ -19,6 +19,7 @@
   const totalPaginas = writable(1);
   let totalRows = writable(0);
 
+
   const listLabels = [
     { label: "Cuit", key: "cuit" },
     { label: "Apellido", key: "apellido" },
@@ -80,6 +81,7 @@
 
       if (result.data) {
         const personasFiltradas = result.data.personas.filter(Boolean);
+     
 
         personasFiltradas.forEach((persona) => {
           if (persona.fechaInicio) {
@@ -426,7 +428,7 @@
         </button>
       </div>
       <Panel>
-        <Domicilios cuit= {rowSelected.cuit} />
+        <Domicilios cuit = {rowSelected.cuit} />
       </Panel>
     </div>
   {/if}
