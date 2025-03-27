@@ -1,31 +1,38 @@
 <script>
+    // @ts-nocheck
+
     import { navigate } from "svelte5-router";
-    // @ts-ignore
     import { strapi } from "$lib/api/strapiconec.js";
     import axios from "axios";
-    // @ts-ignore
     import { jwt_, strapi_ } from "@globalStore";
     import { onMount } from "svelte";
 
-    let name_app = import.meta.env.VITE_APP_NAME;
+    const name_app = import.meta.env.VITE_APP_NAME;
+    const disabedAuth = import.meta.env.VITE_DISABLE_AUTH;
     let identifier = "";
     let password = "";
 
     onMount(async () => {
-        console.log("🚀 ~ onMount ~ $jwt_:", $jwt_)
-        if ($jwt_ != null && $jwt_ != "" && $jwt_ != undefined && $jwt_ != "null") {
-            
+        if (disabedAuth == "true") {
+            navigate("/agentes", { replace: true });
+        }
+        if (
+            $jwt_ != null &&
+            $jwt_ != "" &&
+            $jwt_ != undefined &&
+            $jwt_ != "null"
+        ) {
             $strapi_ = await strapi();
             $strapi_.axios.defaults.headers.common["Authorization"] =
                 `Bearer ${$jwt_}`;
             navigate("/users", { replace: true });
         }
     });
+
     async function handleLogin(event) {
         $strapi_ = await strapi();
         event.preventDefault();
         try {
-            // @ts-ignore
             const response = await axios.post(
                 import.meta.env.VITE_API_HOST + `/api/auth/local`,
                 {
@@ -37,9 +44,8 @@
             if ($jwt_ != null) {
                 $strapi_.axios.defaults.headers.common["Authorization"] =
                     `Bearer ${$jwt_}`;
-                // @ts-ignore
                 let usr = await $strapi_.fetchUser();
-                navigate("/users", { replace: true });
+                navigate("/agentes", { replace: true });
             }
         } catch (e) {
             console.log(e);

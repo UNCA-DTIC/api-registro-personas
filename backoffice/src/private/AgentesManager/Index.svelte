@@ -450,15 +450,17 @@
           Guardar
         </button>
       </div>
-      <Panel>
+      <Panel class="flex-1">
         <Domicilios cuit={rowSelected.cuit} />
       </Panel>
-      <Panel>
-        <Emails cuit={rowSelected.cuit} />
-      </Panel>
-      <Panel>
-        <Telefono cuit={rowSelected.cuit} />
-      </Panel>
+      <div class="flex flex-row gap-4">
+        <Panel class="flex-1">
+          <Emails cuit={rowSelected.cuit} />
+        </Panel>
+        <Panel class="flex-1">
+          <Telefono cuit={rowSelected.cuit} />
+        </Panel>
+      </div>
     </div>
 
    
