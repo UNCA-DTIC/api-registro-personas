@@ -147,20 +147,7 @@
         class="px-4 py-2 border border-gray-300 rounded-lg"
         bind:value={$persona.fechaInicio}
       />
-    </div>
-    <div class="flex flex-col">
-      <label for="tipoSociedad" class="text-sm font-semibold text-gray-600"
-        >Tipo de Sociedad</label
-      >
-      <input
-        type="text"
-        id="tipoSociedad"
-        name="tipoSociedad"
-        class="px-4 py-2 border border-gray-300 rounded-lg"
-        bind:value={$persona.tipoSociedad}
-      />
-    </div>
- 
+    </div>  
     <div class="flex flex-col">
       <label for="cuitRepresentante" class="text-sm font-semibold text-gray-600"
         >Cuit Representante</label
@@ -172,5 +159,6 @@
         class="px-4 py-2 border border-gray-300 rounded-lg"
         bind:value={$persona.representanteCuit}
       />
+    </div>
   </form>
 {/if}

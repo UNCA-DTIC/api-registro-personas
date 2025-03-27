@@ -15,7 +15,7 @@
 
     let { cuit } = $props();
     let data = writable([]);
-    let idpersona = writable(0); 
+    let idpersona = writable(0);
 
     const domicilio = writable({
         personaId: 0,
@@ -69,7 +69,7 @@
                 body: JSON.stringify({ query }),
             });
 
-            const result = await response.json();          
+            const result = await response.json();
 
             if (result.data) {
                 idpersona.set(result.data.personaPorcuit.id);
@@ -91,8 +91,7 @@
         }
     }
 
-    async function CreateDomicilio() {  
-
+    async function CreateDomicilio() {
         const query = `
             mutation {
                 agregarDomicilio(
@@ -115,7 +114,7 @@
             }
         `;
 
-        console.log("🚀 ~ CreateDomicilio ~ query:", query)
+        console.log("🚀 ~ CreateDomicilio ~ query:", query);
 
         try {
             const response = await fetch(API_URL, {
@@ -125,15 +124,15 @@
             });
 
             const result = await response.json();
-            console.log("🚀 ~ CreateDomicilio ~ result:", result)
-
-            if (result.data) {
+            console.log("🚀 ~ CreateDomicilio ~ result:", result);
+            if (result.errors) {
+                console.error("Error al crear domicilio:", result.errors);
+                notificar("Error al crear domicilio", "error");
+                return;
+            } else {
                 notificar("Domicilio creado con éxito", "success");
                 fetchDomicilios();
                 cerrarModal();
-            } else {
-                console.error("Error al crear domicilio:", result.errors);
-                notificar("Error al crear domicilio", "error");
             }
         } catch (error) {
             console.error("Error en CreateDomicilio:", error);

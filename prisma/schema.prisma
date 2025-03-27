@@ -49,7 +49,7 @@ enum EstadoCivil {
 
 model Domicilio {
   id               Int      @id @default(autoincrement())
-  personaId        Int      @unique
+  personaId        Int      
   calle           String?
   numero          String?
   ciudad          String?

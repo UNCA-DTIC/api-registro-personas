@@ -9,6 +9,7 @@
   import Table from "../../lib/Componets/Table/Table.svelte";
   import LayoutPage from "../layout/LayoutPage.svelte";
   import Create from "./Create.svelte";
+  import Delete from "./Delete.svelte";
   import Domicilios from "./Domicilios/Index.svelte";
 
   const API_URL = import.meta.env.VITE_API_HOST_AGENTES;
@@ -18,7 +19,6 @@
   const paginaActual = writable(1);
   const totalPaginas = writable(1);
   let totalRows = writable(0);
-
 
   const listLabels = [
     { label: "Cuit", key: "cuit" },
@@ -81,7 +81,6 @@
 
       if (result.data) {
         const personasFiltradas = result.data.personas.filter(Boolean);
-     
 
         personasFiltradas.forEach((persona) => {
           if (persona.fechaInicio) {
@@ -128,26 +127,6 @@
     try {
       let $persona;
       persona.subscribe((value) => ($persona = value))();
-
-      if ($persona.tipoPersona === "JURIDICA") {
-        $persona.apellido = "N";
-        $persona.nombre = "N";
-        $persona.sexo = "N";
-        $persona.estadoCivil = "N";
-        $persona.nacionalidad = "";
-        if ($persona.representanteCuit === "") {
-          notificar({
-            text: "Debe ingresar el CUIT del representante",
-            type: "warning",
-          });
-          return;
-        }
-      }
-      if ($persona.tipoPersona === "FISICA") {
-        $persona.razonSocial = "N";
-        $persona.representanteCuit = "0";
-      }
-
       const mutation = `
       mutation {
         crearPersona(
@@ -163,20 +142,30 @@
           representanteCuit: "${$persona.representanteCuit}"
         ) {
           id
+          cuit
           nombre
-          apellido
+          apellido  
+          razonSocial
+          fechaInicio
+          nacionalidad
+          sexo
+          estadoCivil
+          tipoPersona
+          representanteCuit 
         }
       }
     `;
-
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: mutation }),
       });
-
       const result = await response.json();
-      if (result.data) {
+
+      if (result.errors) {
+        console.error("Error al crear persona:", result.errors);
+        notificar({ text: "Error al crear persona", type: "error" });
+      } else {
         fetchPersonas();
         persona.set({
           cuit: "",
@@ -190,17 +179,13 @@
           tipoPersona: "FISICA",
           representanteCuit: "0",
         });
-
         notificar({ text: "Persona creada con éxito", type: "success" });
-      } else {
-        console.error("Error al crear persona:", result.errors);
-        notificar({ text: "Error al crear persona", type: "error" });
       }
     } catch (error) {
       console.error("Error en crearPersona:", error);
       notificar({ text: "Error en la conexión", type: "error" });
     }
-    hiddenEnable = false;
+    cerrarModal1();
   }
 
   async function updatePersona(rowSelected) {
@@ -214,26 +199,37 @@
         rowSelected.fechaInicio = new Date(year, month - 1, day);
       }
     }
-
+    console.log("🚀 ~ updatePersona ~ rowSelected:", rowSelected);
     try {
       const mutation = `
       mutation {
         actualizarPersona(
           id: ${rowSelected.id},
-          nombre: "${rowSelected.nombre}",
+          nombre: "${rowSelected.nombre}",            
           apellido: "${rowSelected.apellido}",
+          razonSocial: "${rowSelected.razonSocial}",
           fechaInicio: "${rowSelected.fechaInicio}",
           nacionalidad: "${rowSelected.nacionalidad}",
           sexo: "${rowSelected.sexo}",
           estadoCivil: "${rowSelected.estadoCivil}"
+          tipoPersona: "${rowSelected.tipoPersona}"
+          representanteCuit: "${rowSelected.representanteCuit}"
         ) {
           id
+          cuit
           nombre
-          apellido          
+          apellido  
+          razonSocial
+          fechaInicio
+          nacionalidad
+          sexo
+          estadoCivil
+          tipoPersona
+          representanteCuit          
         }
       }
     `;
-
+      console.log("🚀 ~ updatePersona ~ mutation:", mutation);
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -241,15 +237,16 @@
       });
 
       const result = await response.json();
-      if (result.data) {
+      console.log("🚀 ~ updatePersona ~ result:", result);
+      if (result.errors) {
+        console.error("Error al actualizar persona:", result.errors);
+        notificar({ text: "Error al actualizar persona", type: "error" });
+      } else {
         fetchPersonas();
         notificar({
           text: "Persona actualizada con éxito",
           type: "success",
         });
-      } else {
-        console.error("Error al actualizar persona:", result.errors);
-        notificar({ text: "Error al actualizar persona", type: "error" });
       }
     } catch (error) {
       console.error("Error en updatePersona:", error);
@@ -269,6 +266,8 @@
       const result = await response.json();
       if (result.data) {
         fetchPersonas();
+        showPanel = 1;
+        cerrarModal2();
         notificar({
           text: "Persona eliminada con éxito",
           type: "success",
@@ -352,8 +351,24 @@
     showPanel = state;
   }
 
-  let hiddenEnable = false;
-  $: hiddenEnable;
+  const hiddenEnable = writable(false);
+  const hiddenEnable2 = writable(false);
+
+  function abrirModal1() {
+    hiddenEnable.set(true); // ✅ Se cambia el estado de manera reactiva
+  }
+
+  function cerrarModal1() {
+    hiddenEnable.set(false); // ✅ Se cierra el modal de forma reactiva
+  }
+
+  function abrirModal2() {
+    hiddenEnable2.set(true); // ✅ Se cambia el estado de manera reactiva
+  }
+
+  function cerrarModal2() {
+    hiddenEnable2.set(false); // ✅ Se cierra el modal de forma reactiva
+  }
 
   let showPanel = 1;
   $: showPanel;
@@ -370,7 +385,6 @@
       },
     });
   }
- 
 </script>
 
 <LayoutPage>
@@ -394,7 +408,7 @@
           showPanel = 2;
         }}
         listenAddButton={() => {
-          hiddenEnable = true;
+          abrirModal1();
         }}
         labelData={listLabels}
         data={$data}
@@ -415,6 +429,13 @@
       <Edit {rowSelected} />
       <div class="flex justify-end gap-2 pt-4 w-[960px] lg:ml-52 p-4">
         <button
+          onclick={() => {
+            abrirModal2();
+          }}
+          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >Eliminar
+        </button>
+        <button
           class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
           onclick={selectPanel(1)}
         >
@@ -428,17 +449,19 @@
         </button>
       </div>
       <Panel>
-        <Domicilios cuit = {rowSelected.cuit} />
+        <Domicilios cuit={rowSelected.cuit} />
       </Panel>
     </div>
+
+   
   {/if}
 </LayoutPage>
 
 <Modal
-  title={"Nuevo Agente"}
-  {hiddenEnable}
+  title={"Crear Persona"}
+  hiddenEnable={$hiddenEnable}
   listenclose={() => {
-    hiddenEnable = false;
+    cerrarModal1();
   }}
 >
   <div id="modalContent" class="mb-4">
@@ -447,7 +470,7 @@
   <div class="flex justify-end gap-2">
     <button
       onclick={() => {
-        hiddenEnable = false;
+        cerrarModal1();
       }}
       class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
     >
@@ -461,4 +484,35 @@
       Guardar
     </button>
   </div>
+</Modal>
+
+
+
+<Modal
+title={"Eliminar Persona"}
+hiddenEnable={$hiddenEnable2}
+listenclose={() => {
+  cerrarModal2();
+}}
+>
+<div id="modalContent" class="mb-4">
+  <Delete {rowSelected} />
+</div>
+<div class="flex justify-end gap-2">
+  <button
+    onclick={() => {
+      cerrarModal2();
+    }}
+    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+  >
+    Cancelar
+  </button>
+  <button
+    id="modalAction"
+    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+    onclick={eliminarPersona(rowSelected.id)}
+  >
+    eliminar
+  </button>
+</div>
 </Modal>

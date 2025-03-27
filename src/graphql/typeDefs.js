@@ -73,7 +73,7 @@ const typeDefs = gql`
   type Mutation {
     # Mutaciones de Persona
     crearPersona(cuit: String!, nombre: String!, apellido: String!, razonSocial: String!, fechaInicio: DateTime!, nacionalidad: String, sexo: String, estadoCivil: String, tipoPersona: String, representanteCuit: String): Persona
-    actualizarPersona(id: ID!, nombre: String, apellido: String, fechaInicio: DateTime, nacionalidad: String, sexo: String, estadoCivil: String): Persona
+    actualizarPersona(id: ID!,  nombre: String!, apellido: String!, razonSocial: String!, fechaInicio: DateTime!, nacionalidad: String, sexo: String, estadoCivil: String, tipoPersona: String, representanteCuit: String): Persona
     eliminarPersona(id: ID!): Persona
 
     # Mutaciones de Domicilio

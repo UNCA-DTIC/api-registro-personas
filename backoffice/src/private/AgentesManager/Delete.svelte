@@ -20,9 +20,8 @@
   }
 </script>
 
-<Panel>
-  <div class="flex flex-col justify-center w-[960px]">
-    <h1 class="text-2xl font-bold text-gray-800 mb-4">Editar persona</h1>
+
+  <div class="flex flex-col justify-center ">
     <div class="flex flex-col"></div>
     {#if rowSelected.tipoPersona === "FISICA"}
       <label for="cuit" class="text-sm font-semibold text-gray-600">
@@ -169,4 +168,3 @@
       </div>
     {/if}
   </div>
-</Panel>
