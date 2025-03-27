@@ -11,6 +11,8 @@
   import Create from "./Create.svelte";
   import Delete from "./Delete.svelte";
   import Domicilios from "./Domicilios/Index.svelte";
+  import Emails from "./Emails/Index.svelte";
+  import Telefono from "./Telefono/Index.svelte";
 
   const API_URL = import.meta.env.VITE_API_HOST_AGENTES;
   const LIMITE_POR_PAGINA = 5;
@@ -450,6 +452,12 @@
       </div>
       <Panel>
         <Domicilios cuit={rowSelected.cuit} />
+      </Panel>
+      <Panel>
+        <Emails cuit={rowSelected.cuit} />
+      </Panel>
+      <Panel>
+        <Telefono cuit={rowSelected.cuit} />
       </Panel>
     </div>
 

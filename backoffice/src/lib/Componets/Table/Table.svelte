@@ -2,6 +2,7 @@
     let {
         title = "",
         searchTitle = "Buscar...",
+        paginationEnabled = true,
         showSearch = false,
         showAddButton = false,
         showDownloadButton = false,
@@ -141,23 +142,26 @@
             </tbody>
         </table>
     </div>
-    <div class="flex justify-between items-center p-4">
-        <button
-            disabled={pagination.page === 1}
-            onclick={() => paginate(-1)}
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-white rounded disabled:opacity-50"
-        >
-            Anterior
-        </button>
-        <span class="text-gray-700 dark:text-white">
-            Página {pagination.page} de {pagination.total}, Total: {pagination.totalRows} Max:{pagination.perPage}
-        </span>
-        <button
-            disabled={pagination.page === pagination.total}
-            onclick={() => paginate(1)}
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-white rounded disabled:opacity-50"
-        >
-            Siguiente
-        </button>
-    </div>
+    {#if paginationEnabled}
+        <div class="flex justify-between items-center p-4">
+            <button
+                disabled={pagination.page === 1}
+                onclick={() => paginate(-1)}
+                class="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-white rounded disabled:opacity-50"
+            >
+                Anterior
+            </button>
+            <span class="text-gray-700 dark:text-white">
+                Página {pagination.page} de {pagination.total}, Total: {pagination.totalRows}
+                Max:{pagination.perPage}
+            </span>
+            <button
+                disabled={pagination.page === pagination.total}
+                onclick={() => paginate(1)}
+                class="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-white rounded disabled:opacity-50"
+            >
+                Siguiente
+            </button>
+        </div>
+    {/if}
 </div>

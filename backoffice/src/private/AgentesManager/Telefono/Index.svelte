@@ -18,14 +18,10 @@
     let data = writable([]);
     let idpersona = writable(0);
 
-    const domicilio = writable({
+    const telefono = writable({
         personaId: 0,
-        calle: "",
-        numero: "",
-        ciudad: "",
-        provincia: "",
-        pais: "",
-        codigoPostal: "",
+        telefono: "",
+        tipo: "",
     });
 
     let paginaActual = writable(1);
@@ -35,31 +31,21 @@
     const hiddenEnable2 = writable(false);
 
     const listLabels = [
-        { label: "Calle", key: "calle" },
-        { label: "Numero", key: "numero" },
-        { label: "Ciudad", key: "ciudad" },
-        { label: "Provincia", key: "provincia" },
-        { label: "Pais", key: "pais" },
-        { label: "Codigo Postal", key: "codigoPostal" },
+        { label: "Telefono", key: "telefono" },
+        { label: "Tipo", key: "tipo" },  
     ];
 
-    async function fetchDomicilios() {
+    async function fetchTelefono() {
         try {
             const query = `
                 query {
                     personaPorcuit(cuit: "${cuit}") {
                     id
-                    nombre
-                    apellido
                     cuit
-                        domicilios {
+                        telefonos {
                             id
-                            calle
-                            numero
-                            ciudad
-                            provincia
-                            pais
-                            codigoPostal
+                            telefono
+                            tipo
                         }
                     }
                 }
@@ -72,51 +58,41 @@
             });
 
             const result = await response.json();
+            console.log("🚀 ~ fetchEmails ~ result:", result)
 
             if (result.data) {
                 idpersona.set(result.data.personaPorcuit.id);
-                data.set(result.data.personaPorcuit.domicilios);
-                totalRows.set(result.data.totaldomicilios || 0);
+                data.set(result.data.personaPorcuit.telefonos);             
                 totalPaginas.set(
                     Math.ceil(
-                        (result.data.totaldomicilios || 0) / LIMITE_POR_PAGINA,
+                        (result.data.totalEmails || 0) / LIMITE_POR_PAGINA,
                     ),
                 );
-                notificar("Domicilios cargados con éxito", "success");
+                notificar("Emails cargados con éxito", "success");
             } else {
-                console.error("Error al obtener domicilios:", result.errors);
-                notificar("Error al cargar domicilios", "error");
+                console.error("Error al obtener Emails:", result.errors);
+                notificar("Error al cargar Emails", "error");
             }
         } catch (error) {
-            console.error("Error en fetchDomicilios:", error);
+            console.error("Error en fetchEmails:", error);
             notificar("Error en la conexión", "error");
         }
     }
 
-    async function CreateDomicilio() {
+    async function createTelefono() {
         const query = `
             mutation {
-                agregarDomicilio(
+                agregarTelefono(
                     personaId: ${$idpersona},
-                    calle: "${$domicilio.calle}",
-                    numero: "${$domicilio.numero}",
-                    ciudad: "${$domicilio.ciudad}",
-                    provincia: "${$domicilio.provincia}",
-                    pais: "${$domicilio.pais}",
-                    codigoPostal: "${$domicilio.codigoPostal}"
+                    telefono: "${$telefono.telefono}",
+                    tipo: "${$telefono.tipo}"
                 ) {
                     id
-                    calle
-                    numero
-                    ciudad
-                    provincia
-                    pais
-                    codigoPostal
+                    telefono
+                    tipo
                 }
             }
         `;
-
-        console.log("🚀 ~ CreateDomicilio ~ query:", query);
 
         try {
             const response = await fetch(API_URL, {
@@ -126,26 +102,26 @@
             });
 
             const result = await response.json();
-            console.log("🚀 ~ CreateDomicilio ~ result:", result);
+         
             if (result.errors) {
-                console.error("Error al crear domicilio:", result.errors);
-                notificar("Error al crear domicilio", "error");
+                console.error("Error al crear telefono:", result.errors);
+                notificar("Error al crear telefono", "error");
                 return;
             } else {
-                notificar("Domicilio creado con éxito", "success");
-                fetchDomicilios();
+                notificar("Telefono creado con éxito", "success");
+                fetchTelefono();
                 cerrarModal();
             }
         } catch (error) {
-            console.error("Error en CreateDomicilio:", error);
+            console.error("Error en createTelefono:", error);
             notificar("Error en la conexión", "error");
         }
     }
 
-    async function eliminarDomicilio(id) {
+    async function eliminarTelefono(id) {
         const query = `
             mutation {
-                eliminarDomicilio(id: ${id}) {
+                eliminarTelefono(id: ${id}) {
                     id
                 }
             }
@@ -160,23 +136,23 @@
 
             const result = await response.json();
             if (result.errors) {
-                console.error("Error al eliminar domicilio:", result.errors);
-                notificar("Error al eliminar domicilio", "error");
+                console.error("Error al eliminar Telefono:", result.errors);
+                notificar("Error al eliminar Telefono", "error");
                 return;
             } else {
-                notificar("Domicilio eliminado con éxito", "success");
-                fetchDomicilios();
+                notificar("Telefono eliminado con éxito", "success");
+                fetchTelefono();
                 cerrarModal2();
             }
         } catch (error) {
-            console.error("Error en eliminarDomicilio:", error);
+            console.error("Error en eliminarTelefono:", error);
             notificar("Error en la conexión", "error");
         }
     }
 
     function paginate(direccion) {
         paginaActual.update((n) => Math.max(n + direccion, 1));
-        fetchDomicilios();
+        fetchTelefono();
     }
 
     function notificar(text, type) {
@@ -211,30 +187,26 @@
 
     const rowSelected = writable({
         id: 0,
-        calle: "",
-        numero: "",
-        ciudad: "",
-        provincia: "",
-        pais: "",
-        codigoPostal: "",
+        email: "",
+        tipo: "",
     });
 
-    onMount(fetchDomicilios);
+    onMount(fetchTelefono);
 </script>
 
 <Table
-    title="Domicilios"
+    title="Telefono"
+    paginationEnabled={false}
     itemsPerPage={LIMITE_POR_PAGINA}
     showSearch={false}
-    showAddButton="true"
+    showAddButton={true}
     pagination={{
         page: $paginaActual,
         perPage: LIMITE_POR_PAGINA,
         totalRows: $totalRows,
         total: $totalPaginas,
     }}
-    getRow={(row) => {  
-        console.log("🚀 ~ row:", row)
+    getRow={(row) => {       
         rowSelected.set(row);
         abrirModal2();
     }}
@@ -245,12 +217,12 @@
 />
 
 <Modal
-    title="Nuevo Domicilio"
+    title="Nuevo Telefono"
     hiddenEnable={$hiddenEnable}
     listenclose={cerrarModal}
 >
     <div id="modalContent" class="mb-4"></div>
-    <Create {domicilio} />
+    <Create telefono={telefono} />
     <div class="flex justify-end gap-2">
         <button
             onclick={cerrarModal}
@@ -261,7 +233,7 @@
         <button
             id="modalAction"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            onclick={CreateDomicilio}
+            onclick={createTelefono}
         >
             Guardar
         </button>
@@ -270,7 +242,7 @@
 
 
 <Modal
-title={"Eliminar Domicilio"}
+title={"Eliminar Telefono"}
 hiddenEnable={$hiddenEnable2}
 listenclose={() => {
   cerrarModal2();
@@ -291,7 +263,7 @@ listenclose={() => {
   <button
     id="modalAction"
     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-    onclick={() => eliminarDomicilio($rowSelected.id)}
+    onclick={() => eliminarTelefono($rowSelected.id)}
   >
     Eliminar
   </button>

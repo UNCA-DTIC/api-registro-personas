@@ -1,170 +1,81 @@
 <script>
   // @ts-nocheck
-
-  import Panel from "$lib/layout/Panel.svelte";
-  import { onMount } from "svelte";
-  let fechaNac = "";
   let { rowSelected } = $props();
 
-  onMount(() => {
-    fechaNac = formatDate(rowSelected.fechaInicio);
-  });
-
-  function formatDate(date) {
-    if (!date) return ""; // Si no hay fecha, retorna vacío
-    const [day, month, year] = date.split("/"); // Divide la fecha en día, mes y año
-    if (!day || !month || !year) return ""; // Si la fecha no tiene los 3 elementos, retorna vacío
-    // Convierte al formato YYYY-MM-DD
-    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-    return formattedDate;
-  }
 </script>
-
-
-  <div class="flex flex-col justify-center ">
-    <div class="flex flex-col"></div>
-    {#if rowSelected.tipoPersona === "FISICA"}
-      <label for="cuit" class="text-sm font-semibold text-gray-600">
-        Cuil
+<div class="mb-4">
+  <form id="domicilioForm" class="space-y-4">
+    <div class="flex flex-col">
+      <label for="calle" class="text-sm font-semibold text-gray-600">
+        Calle
       </label>
       <input
         type="text"
         id="cuit"
+        name="cuit"
         class="px-4 py-2 border border-gray-300 rounded-lg"
-        bind:value={rowSelected.cuit}
+        bind:value={$rowSelected.calle}
       />
-      <label for="nombre" class="text-sm font-semibold text-gray-600">
-        Nombre
+    </div>
+    <div class="flex flex-col">
+      <label for="numero" class="text-sm font-semibold text-gray-600">
+        Numero
       </label>
       <input
         type="text"
-        id="nombre"
+        id="numero"
+        name="numero"
         class="px-4 py-2 border border-gray-300 rounded-lg"
-        bind:value={rowSelected.nombre}
+        bind:value={$rowSelected.numero}
       />
-      <label for="apellido" class="text-sm font-semibold text-gray-600">
-        Apellido
+    </div>
+    <div class="flex flex-col">
+      <label for="ciudad" class="text-sm font-semibold text-gray-600">
+        Ciudad
       </label>
       <input
         type="text"
-        id="apellido"
+        id="ciudad"
+        name="ciudad"
         class="px-4 py-2 border border-gray-300 rounded-lg"
-        bind:value={rowSelected.apellido}
+        bind:value={$rowSelected.ciudad}
       />
-      <div class="flex flex-col">
-        <label for="fechaInicio" class="text-sm font-semibold text-gray-600">
-          Fecha de Nacimiento
-        </label>
-        <input
-          type="date"
-          id="fechaInicio"
-          name="fechaInicio"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          value={formatDate(rowSelected.fechaInicio)}
-          onchange={async (e) => {
-            rowSelected.fechaInicio = e.target.value;
-          }}
-        />
-      </div>
-
-      <div class="flex flex-col">
-        <label for="nacionalidad" class="text-sm font-semibold text-gray-600">
-          Nacionalidad
-        </label>
-        <input
-          type="text"
-          id="nacionalidad"
-          name="nacionalidad"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={rowSelected.nacionalidad}
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="sexo" class="text-sm font-semibold text-gray-600">
-          Sexo
-        </label>
-        <select
-          id="sexo"
-          name="sexo"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={rowSelected.sexo}
-        >
-          <option value="M">Masculino</option>
-          <option value="F">Femenino</option>
-          <option value="O">Otro</option>
-        </select>
-      </div>
-
-      <div class="flex flex-col">
-        <label for="estadoCivil" class="text-sm font-semibold text-gray-600">
-          Estado Civil
-        </label>
-        <select
-          id="estadoCivil"
-          name="estadoCivil"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={rowSelected.estadoCivil}
-        >
-          <option value="SOLTERO">Soltero</option>
-          <option value="CASADO">Casado</option>
-          <option value="DIVORCIADO">Divorciado</option>
-          <option value="VIUDO">Viudo</option>
-        </select>
-      </div>
-    {/if}
-    {#if rowSelected.tipoPersona === "JURIDICA"}
-      <div class="flex flex-col">
-        <label for="cuitJuridica" class="text-sm font-semibold text-gray-600"
-          >Cuit</label
-        >
-        <input
-          type="text"
-          id="cuitJuridica"
-          name="cuitJuridica"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={rowSelected.cuit}
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="razonSocial" class="text-sm font-semibold text-gray-600"
-          >Razón Social</label
-        >
-        <input
-          type="text"
-          id="razonSocial"
-          name="razonSocial"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={rowSelected.razonSocial}
-        />
-      </div>
-    
-      <div class="flex flex-col">
-        <label for="fechaInicio" class="text-sm font-semibold text-gray-600">
-          Fecha de Constitución
-        </label>
-        <input
-          type="date"
-          id="fechaInicio"
-          name="fechaInicio"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          value={formatDate(rowSelected.fechaInicio)}
-          onchange={async (e) => {
-            rowSelected.fechaInicio = e.target.value;
-          }}
-        />
-      </div>
-      <div class="flex flex-col">
-        <label
-          for="cuitRepresentante"
-          class="text-sm font-semibold text-gray-600">Cuit Representante</label
-        >
-        <input
-          type="text"
-          id="representanteCuit"
-          name="representanteCuit"
-          class="px-4 py-2 border border-gray-300 rounded-lg"
-          bind:value={rowSelected.representanteCuit}
-        />
-      </div>
-    {/if}
-  </div>
+    </div>
+    <div class="flex flex-col">
+      <label for="provincia" class="text-sm font-semibold text-gray-600">
+        Provincia
+      </label>
+      <input
+        type="text"
+        id="provincia"
+        name="provincia"
+        class="px-4 py-2 border border-gray-300 rounded-lg"
+        bind:value={$rowSelected.provincia}
+      />
+    </div>
+    <div class="flex flex-col">
+      <label for="pais" class="text-sm font-semibold text-gray-600">
+        Pais
+      </label>
+      <input
+        type="text"
+        id="pais"
+        name="pais"
+        class="px-4 py-2 border border-gray-300 rounded-lg"
+        bind:value={$rowSelected.pais}
+      />
+    </div>
+    <div class="flex flex-col">
+      <label for="codigoPostal" class="text-sm font-semibold text-gray-600">
+        Codigo Postal
+      </label>
+      <input
+        type="text"
+        id="codigoPostal"
+        name="codigoPostal"
+        class="px-4 py-2 border border-gray-300 rounded-lg"
+        bind:value={$rowSelected.codigoPostal}
+      />
+    </div>    
+  </form>
+</div>
