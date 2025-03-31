@@ -9,6 +9,7 @@ COPY package.json ./
 # Instalar dependencias
 RUN npm install -g npm@11.2.0 
 RUN npm install --omit=dev
+RUN npx prisma generate
 
 # Copiar el código fuente
 COPY . .
