@@ -4,7 +4,7 @@ FROM node:22.14.0-slim
 WORKDIR /app
 
 # Copiar los archivos de la aplicación
-COPY package.json package-lock.json ./
+COPY package.json ./
 
 # Instalar dependencias
 RUN npm install --production
