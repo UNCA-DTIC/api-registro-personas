@@ -29,7 +29,6 @@ jobs:
             docker container prune -f || true
             docker image prune -a || true
             docker build --no-cache --pull -t unca_test/economica/api_registro_personas_eco:latest .
-
             docker run --restart=always -d \
               -p 7012:4000 \
               -e DATABASE_URL=${{ secrets.DATABASE_URL }} \       

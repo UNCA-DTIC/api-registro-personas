@@ -1,0 +1,5 @@
+/backoffice
+.env
+table.sql
+node_modules
+.vscode
