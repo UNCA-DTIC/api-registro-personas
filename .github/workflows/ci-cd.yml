@@ -29,5 +29,5 @@ jobs:
             docker container prune -f || true
             docker image prune -a || true
             docker build --no-cache --pull -t unca_test/economica/api_registro_personas_eco:latest .
-            docker run --restart=always -d -p 7012:4000 -e DATABASE_URL="postgresql://sist_gestion_recursos:cisasmendi@138.199.168.93:6432/api_registro_personas_eco?schema=public" --name api_registro_personas_eco unca_test/economica/api_registro_personas_eco:latest
+            docker run --restart=always -d -p 7012:4000 -e DATABASE_URL="${{ secrets.DATABASE_URL }}" --name api_registro_personas_eco unca_test/economica/api_registro_personas_eco:latest
             exit
