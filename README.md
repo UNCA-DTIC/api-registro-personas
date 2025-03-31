@@ -1,5 +1,6 @@
 # api-registro-ciudadano
 
+DATABASE_URL="postgresql://user:pass@host:port/data_base?schema=public"
 
 Prisma CLI tiene varios comandos útiles para gestionar bases de datos y el ORM. Aquí te dejo los principales:
 
