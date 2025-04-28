@@ -8,11 +8,12 @@ const resolvers = {
   Query: {
     // Obtener todas las personas con sus relaciones
     // Obtener todas las personas con paginación
-    personas: async (_, { skip = 0, take = max }) => {
+    personas: async (_, { skip = 0, take = max,where  }) => {
       try {
         const personas = await prisma.persona.findMany({
           skip,
           take,
+          where: where ?? undefined, // si where no viene, Prisma ignora el filtro
           include: { domicilios: true, telefonos: true, emails: true },
         });
         return personas;
@@ -58,7 +59,6 @@ const resolvers = {
 
     // Obtener todos los domicilios
     domicilios: async () => {
-      console.log("🚀 ~ domicilios: ~ prisma:")
       return await prisma.domicilio.findMany({ include: { persona: true } });
     },
 

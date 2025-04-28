@@ -51,7 +51,7 @@ const typeDefs = gql`
 
   type Query {
     # Consultas de Personas
-    personas(skip: Int, take: Int): [Persona]
+    personas(skip: Int, take: Int, where: PersonaWhereInput): [Persona]
     totalPersonas: Int
     persona(id: ID!): Persona
     # Consultas de Personas por cuit
