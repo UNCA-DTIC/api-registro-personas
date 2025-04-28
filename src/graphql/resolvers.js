@@ -8,7 +8,7 @@ const resolvers = {
   Query: {
     // Obtener todas las personas con sus relaciones
     // Obtener todas las personas con paginación
-    personas: async (_, { skip = 0, take = max,where  }) => {
+    personas: async (_, { skip = 0, take = max, where }) => {
       try {
         const personas = await prisma.persona.findMany({
           skip,
@@ -23,8 +23,31 @@ const resolvers = {
     },
 
     // Obtener el número total de personas (útil para paginación)
-    totalPersonas: async () => {
-      return await prisma.persona.count();
+    totalPersonas: async (_, { where }) => {
+      return await prisma.persona.count({
+        where: where ?? undefined, // si where no viene, Prisma ignora el filtro
+      }
+      );
+    },
+
+    // Obtener una persona por cuit
+    personaPorcuit: async (_, { cuit, where }) => {
+      if (!cuit) {
+        throw new UserInputError('Faltan datos obligatorios', {
+          invalidArgs: ['cuit'],
+        });
+      }
+      const a = await prisma.persona.findFirst({
+        where: {
+          cuit: {
+            startsWith: cuit, // Busca cualquier cuit que empiece con el valor dado
+            // agrega el filtro de tipoPersona si existe
+            ...(where ? where : {}),
+          },
+        },
+        include: { domicilios: true, telefonos: true, emails: true },
+      });
+      return a;
     },
 
     // Obtener una persona por ID
@@ -39,23 +62,6 @@ const resolvers = {
       return persona;
     },
 
-    // Obtener una persona por cuit
-    personaPorcuit: async (_, { cuit }) => {
-      if (!cuit) {
-        throw new UserInputError('Faltan datos obligatorios', {
-          invalidArgs: ['cuit'],
-        });
-      }
-      const a = await prisma.persona.findFirst({
-        where: {
-          cuit: {
-            startsWith: cuit, // Busca cualquier cuit que empiece con el valor dado
-          },
-        },
-        include: { domicilios: true, telefonos: true, emails: true },
-      });
-      return a;
-    },
 
     // Obtener todos los domicilios
     domicilios: async () => {
@@ -329,7 +335,7 @@ const resolvers = {
             fechaActualizacion: new Date(),
           },
         });
-      }catch (error) {
+      } catch (error) {
         console.error("Error al actualizar el domicilio:", error.message);
         throw new ApolloError('Error al actualizar el domicilio', 'INTERNAL_SERVER_ERROR');
       }
@@ -350,7 +356,7 @@ const resolvers = {
         return await prisma.domicilio.delete({
           where: { id: Number(id) },
         });
-      }	catch (error) {
+      } catch (error) {
         console.error("Error al eliminar el domicilio:", error.message);
         throw new ApolloError('Error al eliminar el domicilio', 'INTERNAL_SERVER_ERROR');
       }

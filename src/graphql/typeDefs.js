@@ -5,6 +5,16 @@ const typeDefs = gql`
 
   input PersonaWhereInput {
     tipoPersona: String
+    cuit: String
+    nombre: String
+    apellido: String
+    razonSocial: String
+    fechaInicio: DateTime
+    nacionalidad: String
+    sexo: String
+    estadoCivil: String
+    representanteCuit: String
+    fechaCreacion: DateTime
   }
 
   type Persona {
@@ -56,10 +66,10 @@ const typeDefs = gql`
   type Query {
     # Consultas de Personas
     personas(skip: Int, take: Int, where: PersonaWhereInput): [Persona]
-    totalPersonas: Int
+    totalPersonas(where: PersonaWhereInput): Int
     persona(id: ID!): Persona
     # Consultas de Personas por cuit
-    personaPorcuit(cuit: String!): Persona
+    personaPorcuit(cuit: String!, where: PersonaWhereInput): Persona
 
     # Consultas de Domicilios
     domicilios: [Domicilio]
