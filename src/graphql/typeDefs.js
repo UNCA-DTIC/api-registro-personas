@@ -3,6 +3,10 @@ const { gql } = require("apollo-server");
 const typeDefs = gql`
   scalar DateTime
 
+  input PersonaWhereInput {
+    tipoPersona: String
+  }
+
   type Persona {
     id: ID!
     cuit: String!
