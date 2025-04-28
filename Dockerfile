@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json ./
 
 # Instalar dependencias
-RUN apt-get update -y && apt-get install -y openssl
+#RUN apt-get update -y && apt-get install -y openssl
 RUN npm install -g npm@11.2.0 
 RUN npm install --omit=dev
 # Copiar el código fuente
